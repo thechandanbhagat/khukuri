@@ -361,9 +361,11 @@ All examples produce the expected outputs as defined in the language specificati
 The Khukuri language includes complete and tested syntax highlighting for popular text editors!
 
 ### Available Syntax Highlighting
-- Visual Studio Code - Full extension with auto-completion and snippets
-- Vim/Neovim - Complete syntax highlighting with auto-detection
-- Sublime Text - Full syntax definition with smart features
+- **Visual Studio Code** - Full extension with auto-completion and snippets
+  - [Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=thechandanbhagat.khukuri-language-support)
+  - Or run: `ext install thechandanbhagat.khukuri-language-support`
+- **Vim/Neovim** - Complete syntax highlighting with auto-detection
+- **Sublime Text** - Full syntax definition with smart features
 
 All syntax definitions include:
 - Nepali keyword highlighting (`maanau`, `yedi`, `kaam`, etc.)
@@ -373,7 +375,7 @@ All syntax definitions include:
 - Auto-indentation and bracket matching
 
 **Installation:** See `editor-support/README.md` for detailed setup instructions.  
-**Testing:** See `editor-support/TESTING.md` for verification details.
+**VS Code Marketplace:** [Khukuri Language Support](https://marketplace.visualstudio.com/items?itemName=thechandanbhagat.khukuri-language-support)
 
 ## Future Enhancements
 
