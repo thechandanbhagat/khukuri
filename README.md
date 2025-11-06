@@ -38,22 +38,48 @@ Khukuri is a fun, educational interpreter for a programming language that uses N
 
 ## Installation
 
+### From Release (Windows)
+
+1. Download the latest release: `khukuri-v0.1.0-windows-x64.zip`
+2. Extract to a permanent location (e.g., `C:\Program Files\Khukuri\`)
+3. Run `install.bat` for automatic installation, or manually add to PATH
+4. Open a new terminal and verify: `khukuri --repl`
+
+See the included `INSTALL.md` for detailed instructions.
+
+### From Source
+
 ```bash
-git clone <repository-url>
+git clone https://github.com/thechandanbhagat/khukuri.git
 cd khukuri
 cargo build --release
+```
+
+**Linux/macOS - Install globally:**
+```bash
+sudo cp target/release/khukuri /usr/local/bin/
+```
+
+**Windows - Add to PATH or use directly:**
+```bash
+.\target\release\khukuri.exe program.nep
 ```
 
 ## Usage
 
 ### Run a Khukuri Program
 ```bash
-cargo run -- program.nep
+khukuri program.nep
 ```
 
 ### Interactive REPL Mode
 ```bash
-cargo run -- --repl
+khukuri --repl
+```
+
+### Try Examples
+```bash
+khukuri examples/fibonacci.nep
 ```
 
 ## Language Examples

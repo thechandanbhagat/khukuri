@@ -1,0 +1,431 @@
+name: Release Build
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v0.1.0)'
+        required: true
+        default: 'v0.1.0'
+
+jobs:
+  build-windows:
+    name: Build for Windows
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+        
+    - name: Cache cargo registry
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/registry
+        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+        
+    - name: Cache cargo index
+      uses: actions/cache@v3
+      with:
+        path: ~/.cargo/git
+        key: ${{ runner.os }}-cargo-git-${{ hashFiles('**/Cargo.lock') }}
+        
+    - name: Cache target directory
+      uses: actions/cache@v3
+      with:
+        path: target
+        key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock') }}
+        
+    - name: Build release binary
+      run: cargo build --release --verbose
+      
+    - name: Create release package
+      shell: pwsh
+      run: |
+        New-Item -ItemType Directory -Force -Path "release-package"
+        Copy-Item "target\release\khukuri.exe" -Destination "release-package\"
+        Copy-Item "README.md" -Destination "release-package\"
+        Copy-Item "examples" -Destination "release-package\" -Recurse
+        
+    - name: Create QUICKSTART.md
+      shell: pwsh
+      run: |
+        @"
+        # Khukuri Programming Language - Release ${{ github.event.release.tag_name || github.event.inputs.version }}
+
+        ## Installation
+
+        **Important:** To use ``khukuri`` command from anywhere, you need to add it to your system PATH.
+
+        See ``INSTALL.md`` for detailed installation instructions.
+
+        ## Quick Start
+
+        ### Running the Interpreter
+
+        **Run a Khukuri program:**
+        ``````bash
+        khukuri program.nep
+        ``````
+
+        **Interactive REPL mode:**
+        ``````bash
+        khukuri --repl
+        ``````
+
+        ### Try the Examples
+
+        This package includes several example programs in the ``examples/`` folder:
+
+        - ``basic_math.nep`` - Variables and arithmetic operations
+        - ``conditionals.nep`` - If-else statements
+        - ``functions_loops.nep`` - Function definitions and loops
+        - ``fibonacci.nep`` - Recursive Fibonacci function
+        - ``collections.nep`` - Lists and dictionaries
+        - ``foreach_loops.nep`` - For-each iteration
+        - ``break_continue.nep`` - Loop control statements
+        - ``import_demo.nep`` - Module imports
+
+        **Run an example:**
+        ``````bash
+        khukuri examples\basic_math.nep
+        ``````
+
+        ## Installation
+
+        1. Extract this archive to a permanent folder (e.g., ``C:\Program Files\Khukuri\``)
+        2. **Add to system PATH** - See ``INSTALL.md`` for step-by-step instructions
+        3. Open a new terminal and run ``khukuri --repl`` to verify
+
+        ## Editor Support
+
+        For syntax highlighting in your favorite editor:
+        - **VS Code**: Install from [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=thechandanbhagat.khukuri-language-support)
+        - **Vim/Neovim**: See ``editor-support/vim/`` in the source repository
+        - **Sublime Text**: See ``editor-support/sublime-text/`` in the source repository
+
+        ## Language Reference
+
+        See the included ``README.md`` for complete language documentation including:
+        - All Nepali keywords
+        - Syntax examples
+        - Language features
+        - Programming patterns
+
+        ## System Requirements
+
+        - Windows 10 or later (64-bit)
+        - No additional dependencies required
+
+        ## Links
+
+        - GitHub Repository: https://github.com/thechandanbhagat/khukuri
+        - VS Code Extension: https://marketplace.visualstudio.com/items?itemName=thechandanbhagat.khukuri-language-support
+        - Report Issues: https://github.com/thechandanbhagat/khukuri/issues
+
+        ## License
+
+        MIT License - See README.md for details
+        "@ | Out-File -FilePath "release-package\QUICKSTART.md" -Encoding utf8
+        
+    - name: Create INSTALL.md
+      shell: pwsh
+      run: |
+        @"
+        # Khukuri Installation Guide
+
+        ## Windows Installation
+
+        ### Option 1: Quick Install (Recommended)
+
+        1. **Extract the ZIP file** to a permanent location (e.g., ``C:\Program Files\Khukuri\``)
+
+        2. **Add to PATH:**
+           - Press ``Win + X`` and select "System"
+           - Click "Advanced system settings"
+           - Click "Environment Variables"
+           - Under "System variables", find and select "Path"
+           - Click "Edit"
+           - Click "New"
+           - Add the path where you extracted Khukuri (e.g., ``C:\Program Files\Khukuri\``)
+           - Click "OK" on all dialogs
+
+        3. **Verify Installation:**
+           Open a new command prompt or PowerShell and run:
+           ``````bash
+           khukuri --repl
+           ``````
+
+        4. **Run your programs:**
+           ``````bash
+           khukuri myprogram.nep
+           ``````
+
+        ### Option 2: Manual Setup
+
+        If you don't want to add to PATH, you can:
+        - Run from the Khukuri folder: ``.\khukuri.exe myprogram.nep``
+        - Copy ``khukuri.exe`` to the same folder as your ``.nep`` files
+
+        ## Linux/macOS Installation
+
+        1. **Build from source:**
+           ``````bash
+           git clone https://github.com/thechandanbhagat/khukuri.git
+           cd khukuri
+           cargo build --release
+           ``````
+
+        2. **Install globally:**
+           ``````bash
+           sudo cp target/release/khukuri /usr/local/bin/
+           ``````
+
+        3. **Verify:**
+           ``````bash
+           khukuri --repl
+           ``````
+
+        ## Usage
+
+        Once installed, you can run Khukuri programs from anywhere:
+
+        ``````bash
+        # Run a program
+        khukuri myprogram.nep
+
+        # Start REPL
+        khukuri --repl
+
+        # Run examples
+        khukuri examples/fibonacci.nep
+        ``````
+
+        ## Troubleshooting
+
+        **"khukuri is not recognized as a command"**
+        - Make sure you added the correct folder to PATH
+        - Restart your terminal after adding to PATH
+        - Verify the path by running: ``echo `$env:PATH`` (PowerShell) or ``echo %PATH%`` (CMD)
+
+        **Permission denied (Linux/macOS)**
+        - Make sure the binary is executable: ``chmod +x /usr/local/bin/khukuri``
+
+        ## Uninstall
+
+        **Windows:**
+        - Remove the folder where Khukuri is installed
+        - Remove the PATH entry from Environment Variables
+
+        **Linux/macOS:**
+        ``````bash
+        sudo rm /usr/local/bin/khukuri
+        ``````
+        "@ | Out-File -FilePath "release-package\INSTALL.md" -Encoding utf8
+        
+    - name: Create install.bat
+      shell: pwsh
+      run: |
+        @"
+        @echo off
+        REM Khukuri Automatic Installer for Windows
+        REM This script will install Khukuri and add it to your PATH
+
+        echo ========================================
+        echo Khukuri Programming Language Installer
+        echo ========================================
+        echo.
+
+        REM Check if running as administrator
+        net session >nul 2>&1
+        if %errorLevel% == 0 (
+            echo Running with administrator privileges...
+            set INSTALL_DIR=C:\Program Files\Khukuri
+        ) else (
+            echo Running without administrator privileges...
+            echo Installing to user directory...
+            set INSTALL_DIR=%USERPROFILE%\Khukuri
+        )
+
+        echo.
+        echo Installation directory: %INSTALL_DIR%
+        echo.
+
+        REM Create installation directory
+        if not exist "%INSTALL_DIR%" (
+            mkdir "%INSTALL_DIR%"
+            echo Created directory: %INSTALL_DIR%
+        )
+
+        REM Copy files
+        echo Copying files...
+        copy /Y khukuri.exe "%INSTALL_DIR%\"
+        xcopy /E /I /Y examples "%INSTALL_DIR%\examples"
+        copy /Y README.md "%INSTALL_DIR%\"
+        copy /Y QUICKSTART.md "%INSTALL_DIR%\"
+        copy /Y INSTALL.md "%INSTALL_DIR%\"
+
+        echo.
+        echo Files copied successfully!
+        echo.
+
+        REM Add to PATH
+        echo Adding Khukuri to PATH...
+        setx PATH "%PATH%;%INSTALL_DIR%" >nul 2>&1
+
+        if %errorLevel% == 0 (
+            echo.
+            echo ========================================
+            echo Installation Complete!
+            echo ========================================
+            echo.
+            echo Khukuri has been installed to: %INSTALL_DIR%
+            echo.
+            echo IMPORTANT: Please close this terminal and open a NEW terminal
+            echo to use the 'khukuri' command.
+            echo.
+            echo Try running:
+            echo   khukuri --repl
+            echo   khukuri examples\fibonacci.nep
+            echo.
+        ) else (
+            echo.
+            echo Installation completed, but failed to add to PATH automatically.
+            echo Please add the following directory to your PATH manually:
+            echo   %INSTALL_DIR%
+            echo.
+            echo See INSTALL.md for manual PATH setup instructions.
+        )
+
+        pause
+        "@ | Out-File -FilePath "release-package\install.bat" -Encoding ascii
+        
+    - name: Create ZIP archive
+      shell: pwsh
+      run: |
+        $version = "${{ github.event.release.tag_name || github.event.inputs.version }}"
+        Compress-Archive -Path "release-package\*" -DestinationPath "khukuri-$version-windows-x64.zip"
+        
+    - name: Upload release asset
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./khukuri-${{ github.event.release.tag_name }}-windows-x64.zip
+        asset_name: khukuri-${{ github.event.release.tag_name }}-windows-x64.zip
+        asset_content_type: application/zip
+        
+    - name: Upload artifact (manual trigger)
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/upload-artifact@v3
+      with:
+        name: khukuri-windows-x64
+        path: khukuri-${{ github.event.inputs.version }}-windows-x64.zip
+
+  build-linux:
+    name: Build for Linux
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+        
+    - name: Build release binary
+      run: cargo build --release --verbose
+      
+    - name: Create release package
+      run: |
+        mkdir -p release-package
+        cp target/release/khukuri release-package/
+        cp README.md release-package/
+        cp -r examples release-package/
+        chmod +x release-package/khukuri
+        
+    - name: Create tarball
+      run: |
+        version="${{ github.event.release.tag_name || github.event.inputs.version }}"
+        tar -czf "khukuri-$version-linux-x64.tar.gz" -C release-package .
+        
+    - name: Upload release asset
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./khukuri-${{ github.event.release.tag_name }}-linux-x64.tar.gz
+        asset_name: khukuri-${{ github.event.release.tag_name }}-linux-x64.tar.gz
+        asset_content_type: application/gzip
+        
+    - name: Upload artifact (manual trigger)
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/upload-artifact@v3
+      with:
+        name: khukuri-linux-x64
+        path: khukuri-${{ github.event.inputs.version }}-linux-x64.tar.gz
+
+  build-macos:
+    name: Build for macOS
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+        override: true
+        
+    - name: Build release binary
+      run: cargo build --release --verbose
+      
+    - name: Create release package
+      run: |
+        mkdir -p release-package
+        cp target/release/khukuri release-package/
+        cp README.md release-package/
+        cp -r examples release-package/
+        chmod +x release-package/khukuri
+        
+    - name: Create tarball
+      run: |
+        version="${{ github.event.release.tag_name || github.event.inputs.version }}"
+        tar -czf "khukuri-$version-macos-x64.tar.gz" -C release-package .
+        
+    - name: Upload release asset
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./khukuri-${{ github.event.release.tag_name }}-macos-x64.tar.gz
+        asset_name: khukuri-${{ github.event.release.tag_name }}-macos-x64.tar.gz
+        asset_content_type: application/gzip
+        
+    - name: Upload artifact (manual trigger)
+      if: github.event_name == 'workflow_dispatch'
+      uses: actions/upload-artifact@v3
+      with:
+        name: khukuri-macos-x64
+        path: khukuri-${{ github.event.inputs.version }}-macos-x64.tar.gz
