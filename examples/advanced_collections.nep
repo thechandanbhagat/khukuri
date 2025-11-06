@@ -1,0 +1,69 @@
+// Advanced Collections Demo
+
+// Function to calculate sum of a list
+kaam sum_list(arr) {
+    maanau total = 0
+    maanau i = 0
+    
+    // Simple iteration (until we add for-each)
+    jaba samma i < 5 {  // We know the list has 5 elements
+        total = total + arr[i]
+        i = i + 1
+    }
+    
+    pathau total
+}
+
+// Test the function
+maanau my_numbers = [10, 20, 30, 40, 50]
+bhan "Numbers:"
+bhan my_numbers
+
+maanau result = sum_list(my_numbers)
+bhan "Sum of numbers:"
+bhan result
+
+// Dictionary to store multiple students
+maanau class_data = {
+    "teacher": "Guru Ji",
+    "subject": "Math",
+    "room": "101"
+}
+
+bhan "Class info:"
+bhan class_data
+
+// Function that works with dictionary
+kaam get_student_grade(student) {
+    maanau marks = student["marks"]
+    
+    yedi marks >= 90 bhane {
+        pathau "A+"
+    } natra {
+        yedi marks >= 80 bhane {
+            pathau "A"
+        } natra {
+            yedi marks >= 70 bhane {
+                pathau "B"
+            } natra {
+                yedi marks >= 60 bhane {
+                    pathau "C"
+                } natra {
+                    pathau "F"
+                }
+            }
+        }
+    }
+}
+
+// Test grading function
+maanau student1 = {"naam": "Hari", "marks": 85}
+maanau student2 = {"naam": "Maya", "marks": 95}
+
+bhan student1["naam"]
+bhan "gets grade:"
+bhan get_student_grade(student1)
+
+bhan student2["naam"] 
+bhan "gets grade:"
+bhan get_student_grade(student2)

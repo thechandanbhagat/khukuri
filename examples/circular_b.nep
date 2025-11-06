@@ -1,0 +1,4 @@
+// Test circular imports - circular_b.nep
+bhan "File B ma chu"  
+aayaat "examples/circular_a.nep"  // This should be ignored (circular)
+bhan "Feri file B ma firye"

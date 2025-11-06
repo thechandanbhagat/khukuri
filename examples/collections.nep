@@ -1,0 +1,55 @@
+// Lists and Dictionaries Demo in Khukuri
+
+// Create a list of numbers
+maanau numbers = [1, 2, 3, 4, 5]
+bhan "Numbers list:"
+bhan numbers
+
+// Access list elements
+bhan "First number:"
+bhan numbers[0]
+bhan "Third number:"
+bhan numbers[2]
+
+// Modify list elements
+numbers[1] = 99
+bhan "Modified list:"
+bhan numbers
+
+// Create a list of strings
+maanau fruits = ["aam", "kera", "syau", "naranghi"]
+bhan "Fruits:"
+bhan fruits
+
+// Create a dictionary (person info)
+maanau person = {"naam": "Ram Bahadur", "umar": 25, "thau": "Kathmandu"}
+bhan "Person info:"
+bhan person
+
+// Access dictionary values
+bhan "Name:"
+bhan person["naam"]
+bhan "Age:"
+bhan person["umar"]
+
+// Modify dictionary
+person["umar"] = 26
+person["kaam"] = "Engineer"
+bhan "Updated person:"
+bhan person
+
+// Nested structures
+maanau students = [
+    {"naam": "Sita", "marks": 85},
+    {"naam": "Gita", "marks": 92},
+    {"naam": "Rita", "marks": 78}
+]
+
+bhan "Students list:"
+bhan students
+
+bhan "First student name:"
+bhan students[0]["naam"]
+
+bhan "Second student marks:"
+bhan students[1]["marks"]

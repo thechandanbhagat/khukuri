@@ -1,0 +1,17 @@
+// Example 2: Conditionals with Nested Logic from the spec
+maanau marks = 75
+maanau attendance = 80
+
+yedi marks >= 80 ra attendance >= 75 bhane {
+    bhan "A grade! Khatra performance bro"
+} natra {
+    yedi marks >= 60 ra attendance >= 70 bhane {
+        bhan "B grade, thik cha"
+    } natra {
+        yedi marks >= 40 bhane {
+            bhan "Pass bhayo, aaile ramro gara"
+        } natra {
+            bhan "Fail bro, mehnat gara"
+        }
+    }
+}

@@ -1,0 +1,61 @@
+// For-Each Loops (`pratyek`) Demo in Khukuri
+
+// Basic list iteration
+maanau numbers = [1, 2, 3, 4, 5]
+bhan "Iterating through numbers:"
+
+pratyek num ma numbers {
+    bhan num
+}
+
+// String iteration
+maanau greeting = "Hello"
+bhan "Iterating through characters:"
+
+pratyek char ma greeting {
+    bhan char
+}
+
+// List of fruits
+maanau fruits = ["aam", "kera", "syau", "naranghi"]
+bhan "All fruits:"
+
+pratyek fruit ma fruits {
+    bhan fruit
+}
+
+// Dictionary iteration (iterates over keys)
+maanau person = {"naam": "Ram", "umar": 25, "thau": "Kathmandu"}
+bhan "Person keys:"
+
+pratyek key ma person {
+    bhan key
+    bhan person[key]  // Access value using the key
+}
+
+// Calculating sum using for-each
+maanau scores = [85, 92, 78, 96, 88]
+maanau total = 0
+
+bhan "Calculating total score:"
+pratyek score ma scores {
+    total = total + score
+    bhan score
+}
+
+bhan "Total score:"
+bhan total
+
+// Working with nested data
+maanau students = [
+    {"naam": "Sita", "marks": 85},
+    {"naam": "Gita", "marks": 92},
+    {"naam": "Rita", "marks": 78}
+]
+
+bhan "Student details:"
+pratyek student ma students {
+    bhan student["naam"]
+    bhan "Marks:"
+    bhan student["marks"]
+}

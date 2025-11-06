@@ -1,0 +1,74 @@
+// Break and Continue Statements Demo
+
+// Break in while loop - find first even number greater than 5
+maanau i = 1
+maanau found = 0
+
+bhan "Looking for first even number greater than 5:"
+
+jaba samma i <= 20 {
+    bhan i
+    
+    yedi i > 5 ra i % 2 == 0 bhane {
+        found = i
+        bhan "Found it!"
+        rok  // Break out of loop
+    }
+    
+    i = i + 1
+}
+
+bhan "First even number greater than 5:"
+bhan found
+
+// Continue in while loop - print only odd numbers
+bhan "Odd numbers from 1 to 10:"
+maanau j = 1
+
+jaba samma j <= 10 {
+    yedi j % 2 == 0 bhane {
+        j = j + 1
+        jane  // Skip to next iteration
+    }
+    
+    bhan j
+    j = j + 1
+}
+
+// Break in for-each loop
+maanau numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+bhan "Numbers until we find 6:"
+
+pratyek num ma numbers {
+    bhan num
+    
+    yedi num == 6 bhane {
+        bhan "Found 6, stopping!"
+        rok
+    }
+}
+
+// Continue in for-each loop  
+maanau all_numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+bhan "Only even numbers from list:"
+
+pratyek num ma all_numbers {
+    yedi num % 2 != 0 bhane {
+        jane  // Skip odd numbers
+    }
+    
+    bhan num
+}
+
+// Break with strings
+maanau text = "Hello World"
+bhan "Characters until we find 'o':"
+
+pratyek char ma text {
+    bhan char
+    
+    yedi char == "o" bhane {
+        bhan "Found 'o', stopping!"
+        rok
+    }
+}

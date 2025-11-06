@@ -1,0 +1,50 @@
+// Simple Nepali Gen-Z Style Output Demo
+bhan "=== Khukuri Language Demo - Nepali Style ==="
+bhan ""
+
+// Basic calculations 
+maanau price = 1500
+maanau discount = 200
+maanau final = price - discount
+
+yedi final < 1000 bhane {
+    bhan "Sasto bhayo bro!"
+} natra {
+    bhan "Mehango cha yaar"
+}
+bhan "Final price:"
+bhan final
+bhan ""
+
+// List demo
+maanau fruits = ["aam", "kera", "syau", "naranghi"]
+bhan "Fruits haru:"
+pratyek fruit ma fruits {
+    bhan fruit
+}
+bhan ""
+
+// Function demo
+kaam greet(name) {
+    bhan "Namaste"
+    bhan name
+    bhan "kasto cha?"
+}
+
+greet("Ram")
+bhan ""
+
+// Loop with break/continue demo  
+bhan "Numbers 1 dekhi 10 samma (even skip garne):"
+maanau i = 1
+jaba samma i <= 10 {
+    yedi i % 2 == 0 bhane {
+        i = i + 1
+        jane  // skip even numbers
+    }
+    bhan i
+    i = i + 1
+}
+bhan ""
+
+bhan "Demo sakyo! Dhanyabaad!"

@@ -1,0 +1,11 @@
+// Simple import test - simple_import.nep
+aayaat "examples/math_utils.nep"
+
+maanau x = 7
+bhan "Simple import test garda:"
+bhan "x ="
+bhan x
+bhan "x ko square ="
+bhan square(x)
+bhan "PI ="  
+bhan PI

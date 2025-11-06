@@ -1,0 +1,11 @@
+// Fibonacci function test
+kaam fibonacci(n) {
+    yedi n <= 1 bhane {
+        pathau n
+    }
+    pathau fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+maanau result = fibonacci(10)
+bhan "Fibonacci of 10:"
+bhan result

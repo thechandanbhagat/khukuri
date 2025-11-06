@@ -1,0 +1,88 @@
+// Main program demonstrating import system - import_demo.nep
+
+bhan "=== KHUKURI IMPORT SYSTEM DEMO ==="
+bhan ""
+
+// Import math utilities
+aayaat "examples/math_utils.nep"
+
+// Import string utilities  
+aayaat "examples/string_utils.nep"
+
+bhan "Math Functions haru test:"
+bhan "========================"
+
+maanau num = 5
+bhan "Number:"
+bhan num
+
+bhan "Square:"
+bhan square(num)
+
+bhan "Cube:" 
+bhan cube(num)
+
+bhan "Factorial:"
+bhan factorial(num)
+
+bhan "Even cha ki:"
+bhan is_even(num)
+
+bhan "Odd cha ki:"
+bhan is_odd(num)
+
+maanau a = 10
+maanau b = 7
+bhan "Max"
+bhan a
+bhan "ra"  
+bhan b
+bhan "ko beech ma:"
+bhan max(a, b)
+
+bhan "Min chai:"
+bhan min(a, b)
+
+bhan "PI constant:"
+bhan PI
+
+bhan ""
+bhan "String Functions haru test:"
+bhan "=========================="
+
+maanau test_word = "Kathmandu"
+bhan "Test word:"
+bhan test_word
+
+bhan "Length:"
+bhan string_length(test_word)
+
+bhan "Vowel count:"
+bhan count_vowels(test_word)
+
+bhan "Greeting constant:"
+bhan GREETING
+
+bhan "Farewell constant:"
+bhan FAREWELL
+
+bhan ""
+bhan "Complex Math Test:"
+bhan "=================="
+
+// Use multiple imported functions together
+maanau numbers = [1, 2, 3, 4, 5]
+bhan "Numbers haru process gardai:"
+
+pratyek number ma numbers {
+    bhan "Number:"
+    bhan number
+    bhan "Square:"
+    bhan square(number)
+    bhan "Even cha ki:"
+    bhan is_even(number)
+    bhan "---"
+}
+
+bhan ""
+bhan "Import demo sakyo! Ramro lagyo!"

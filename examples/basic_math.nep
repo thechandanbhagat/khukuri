@@ -1,0 +1,10 @@
+// Example 1: Variables and Basic Math from the spec
+maanau price = 500
+maanau discount = 50
+maanau final_price = price - discount
+
+yedi final_price < 400 bhane {
+    bhan "Sasto cha, kinnu parchha!"
+} natra {
+    bhan "Mehango cha bro"
+}

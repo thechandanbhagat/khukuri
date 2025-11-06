@@ -1,0 +1,90 @@
+// Advanced For-Each Examples
+
+// Function using for-each
+kaam print_list_items(items) {
+    bhan "List contents:"
+    pratyek item ma items {
+        bhan item
+    }
+}
+
+// Test the function
+maanau colors = ["rato", "nilo", "hariyo", "pahelo"]
+print_list_items(colors)
+
+// Finding maximum in a list
+kaam find_max(numbers) {
+    maanau max_val = 0
+    
+    pratyek num ma numbers {
+        yedi num > max_val bhane {
+            max_val = num
+        }
+    }
+    
+    pathau max_val
+}
+
+maanau test_numbers = [45, 89, 12, 67, 34, 99, 23]
+bhan "Numbers:"
+bhan test_numbers
+
+maanau maximum = find_max(test_numbers)
+bhan "Maximum number:"
+bhan maximum
+
+// Filtering even numbers
+maanau all_nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+maanau even_nums = []
+
+bhan "Finding even numbers from:"
+bhan all_nums
+
+pratyek num ma all_nums {
+    yedi num % 2 == 0 bhane {
+        // We'll manually track evens since we don't have push yet
+        bhan num
+    }
+}
+
+// Working with dictionary of students
+maanau class = {
+    "math_teacher": "Guru Ram",
+    "english_teacher": "Guru Sita", 
+    "science_teacher": "Guru Hari"
+}
+
+bhan "Class teachers:"
+pratyek subject ma class {
+    bhan subject
+    bhan class[subject]
+}
+
+// Nested for-each (iterating through list of lists)
+maanau matrix = [
+    [1, 2, 3],
+    [4, 5, 6], 
+    [7, 8, 9]
+]
+
+bhan "Matrix values:"
+pratyek row ma matrix {
+    pratyek cell ma row {
+        bhan cell
+    }
+}
+
+// String processing
+maanau message = "Namaste"
+maanau char_count = 0
+
+bhan "Counting characters in:"
+bhan message
+
+pratyek character ma message {
+    char_count = char_count + 1
+    bhan character
+}
+
+bhan "Total characters:"
+bhan char_count

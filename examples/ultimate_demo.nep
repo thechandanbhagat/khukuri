@@ -1,0 +1,204 @@
+// Ultimate Demo: All Features Working Together
+// A complete program using variables, functions, lists, dictionaries, 
+// for-each loops, while loops, break, continue, and nested structures
+
+// Student Grade Processing System
+bhan "=== ULTIMATE KHUKURI LANGUAGE DEMO ==="
+
+// Database of students with multiple subjects
+maanau school_data = {
+    "grade_10a": [
+        {"naam": "Ram Bahadur", "subjects": {"Math": 85, "Science": 92, "English": 78, "Social": 88}},
+        {"naam": "Sita Sharma", "subjects": {"Math": 94, "Science": 88, "English": 91, "Social": 95}},
+        {"naam": "Hari Thapa", "subjects": {"Math": 76, "Science": 82, "English": 85, "Social": 79}}
+    ],
+    "grade_10b": [
+        {"naam": "Maya Gurung", "subjects": {"Math": 89, "Science": 94, "English": 87, "Social": 91}},
+        {"naam": "Raju Tamang", "subjects": {"Math": 72, "Science": 76, "English": 80, "Social": 74}}
+    ]
+}
+
+// Function to calculate GPA with letter grades
+kaam calculate_gpa(subjects) {
+    maanau total_points = 0
+    maanau subject_count = 0
+    
+    pratyek subject_name ma subjects {
+        maanau marks = subjects[subject_name]
+        maanau grade_points = 0
+        
+        // Convert marks to grade points
+        yedi marks >= 95 bhane {
+            grade_points = 4.0
+        } natra {
+            yedi marks >= 85 bhane {
+                grade_points = 3.5
+            } natra {
+                yedi marks >= 75 bhane {
+                    grade_points = 3.0
+                } natra {
+                    yedi marks >= 65 bhane {
+                        grade_points = 2.5
+                    } natra {
+                        grade_points = 2.0
+                    }
+                }
+            }
+        }
+        
+        total_points = total_points + grade_points
+        subject_count = subject_count + 1
+    }
+    
+    pathau total_points / subject_count
+}
+
+// Function to find top performer in a class
+kaam find_class_topper(students) {
+    maanau best_student = ""
+    maanau highest_gpa = 0
+    
+    pratyek student ma students {
+        maanau gpa = calculate_gpa(student["subjects"])
+        yedi gpa > highest_gpa bhane {
+            highest_gpa = gpa
+            best_student = student["naam"]
+        }
+    }
+    
+    pathau {"naam": best_student, "gpa": highest_gpa}
+}
+
+// Function to analyze failing students (GPA < 2.5)
+kaam find_struggling_students(students) {
+    maanau struggling = []
+    maanau count = 0
+    
+    pratyek student ma students {
+        maanau gpa = calculate_gpa(student["subjects"])
+        yedi gpa < 2.5 bhane {
+            // We'd add to list if we had push method
+            bhan "Struggling student:"
+            bhan student["naam"]
+            count = count + 1
+        }
+    }
+    
+    pathau count
+}
+
+// Main processing loop
+bhan "Sab classes haru process gardai..."
+
+maanau school_topper = ""
+maanau school_best_gpa = 0
+maanau total_students = 0
+
+pratyek class_name ma school_data {
+    bhan "=== CLASS ANALYSIS ==="
+    bhan class_name
+    
+    maanau students = school_data[class_name]
+    
+    // Process each student
+    pratyek student ma students {
+        maanau naam = student["naam"]
+        maanau gpa = calculate_gpa(student["subjects"])
+        total_students = total_students + 1
+        
+        bhan "Student:"
+        bhan naam
+        bhan "GPA:"
+        bhan gpa
+        
+        // Track school topper
+        yedi gpa > school_best_gpa bhane {
+            school_best_gpa = gpa
+            school_topper = naam
+        }
+        
+        // Detailed subject analysis with break/continue
+        bhan "Subject details:"
+        pratyek subject ma student["subjects"] {
+            maanau marks = student["subjects"][subject]
+            
+            // Skip subjects with marks below 70 for detailed analysis
+            yedi marks < 70 bhane {
+                jane
+            }
+            
+            bhan subject
+            bhan marks
+            
+            // Stop analysis if we find a perfect score
+            yedi marks >= 95 bhane {
+                bhan "Perfect score found! Ending subject analysis."
+                rok
+            }
+        }
+        
+        bhan "---"
+    }
+    
+    // Find class topper
+    maanau class_result = find_class_topper(students)
+    bhan "Class Topper:"
+    bhan class_result["naam"]
+    bhan "Class Best GPA:"
+    bhan class_result["gpa"]
+    
+    // Check for struggling students
+    maanau struggling_count = find_struggling_students(students)
+    bhan "Struggling students in class:"
+    bhan struggling_count
+    
+    bhan "========================"
+}
+
+// Final school statistics
+bhan "=== SCHOOL SUMMARY ==="
+bhan "Total students processed:"
+bhan total_students
+
+bhan "School Topper:"
+bhan school_topper
+bhan "School Best GPA:"
+bhan school_best_gpa
+
+// Subject-wise school analysis with advanced control flow
+maanau all_subjects = ["Math", "Science", "English", "Social"]
+bhan "=== SUBJECT-WISE SCHOOL ANALYSIS ==="
+
+pratyek subject ma all_subjects {
+    bhan "Analyzing subject:"
+    bhan subject
+    
+    maanau subject_total = 0
+    maanau student_count = 0
+    maanau high_scorers = 0
+    
+    // Analyze across all classes
+    pratyek class_name ma school_data {
+        maanau students = school_data[class_name]
+        
+        pratyek student ma students {
+            maanau marks = student["subjects"][subject]
+            subject_total = subject_total + marks
+            student_count = student_count + 1
+            
+            yedi marks >= 85 bhane {
+                high_scorers = high_scorers + 1
+            }
+        }
+    }
+    
+    maanau average = subject_total / student_count
+    bhan "School average:"
+    bhan average
+    bhan "High scorers (85+):"
+    bhan high_scorers
+    bhan "---"
+}
+
+bhan "=== DEMO COMPLETE ==="
+bhan "Successfully demonstrated all Khukuri language features!"

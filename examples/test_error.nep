@@ -1,0 +1,3 @@
+// Test error messages in Nepali Gen-Z style
+maanau x = 5
+bhan x + unknown_variable  // This should cause an error

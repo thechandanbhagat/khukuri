@@ -1,0 +1,110 @@
+// Advanced Break and Continue Examples
+
+// Nested loops with break and continue
+bhan "Multiplication table with breaks:"
+
+maanau outer = 1
+jaba samma outer <= 5 {
+    bhan "Table for:"
+    bhan outer
+    
+    maanau inner = 1
+    jaba samma inner <= 10 {
+        maanau result = outer * inner
+        
+        // Skip if result is divisible by 7
+        yedi result % 7 == 0 bhane {
+            inner = inner + 1
+            jane
+        }
+        
+        // Break if result greater than 25
+        yedi result > 25 bhane {
+            bhan "Result too big, moving to next table"
+            rok
+        }
+        
+        bhan result
+        inner = inner + 1
+    }
+    
+    outer = outer + 1
+}
+
+// Function with break/continue in loops
+kaam find_first_match(items, target) {
+    bhan "Looking for:"
+    bhan target
+    
+    pratyek item ma items {
+        yedi item == target bhane {
+            bhan "Found it!"
+            pathau item
+        }
+    }
+    
+    bhan "Not found"
+    pathau galat
+}
+
+maanau fruits = ["aam", "kera", "syau", "naranghi"]
+maanau result = find_first_match(fruits, "syau")
+bhan "Search result:"
+bhan result
+
+// Complex break/continue with dictionary
+maanau students = {
+    "Ram": 85,
+    "Sita": 92, 
+    "Hari": 76,
+    "Maya": 88,
+    "Gita": 94
+}
+
+bhan "Students with marks above 80 (stop at Maya):"
+
+pratyek student ma students {
+    maanau marks = students[student]
+    
+    // Skip if marks below 80
+    yedi marks < 80 bhane {
+        jane
+    }
+    
+    bhan student
+    bhan marks
+    
+    // Stop when we reach Maya
+    yedi student == "Maya" bhane {
+        bhan "Maya lai bhetyo, search rok diye"
+        rok
+    }
+}
+
+// Practical example: Input validation simulation
+maanau inputs = ["", "abc", "123", "", "456", "xyz", "789"]
+bhan "Inputs haru process garda (khali skip garne, numbers paxi pehilo non-numeric ma rok):"
+
+maanau found_number = galat
+
+pratyek input ma inputs {
+    // Skip empty strings
+    yedi input == "" bhane {
+        bhan "Khali input skip garyo"
+        jane
+    }
+    
+    // Check if it looks like a number (simple check)
+    yedi input == "123" wa input == "456" wa input == "789" bhane {
+        bhan "Valid number:"
+        bhan input
+        found_number = sahi
+    } natra {
+        yedi found_number == sahi bhane {
+            bhan "Numbers pachi non-numeric bhettayo, rokdiye"
+            rok
+        }
+        bhan "Non-numeric input ho:"
+        bhan input
+    }
+}

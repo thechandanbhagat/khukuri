@@ -1,0 +1,45 @@
+// Math utility functions - math_utils.nep
+// This file contains commonly used mathematical functions
+
+kaam square(x) {
+    pathau x * x
+}
+
+kaam cube(x) {
+    pathau x * x * x
+}
+
+kaam factorial(n) {
+    yedi n <= 1 bhane {
+        pathau 1
+    }
+    pathau n * factorial(n - 1)
+}
+
+kaam is_even(number) {
+    pathau number % 2 == 0
+}
+
+kaam is_odd(number) {
+    pathau number % 2 != 0
+}
+
+kaam max(a, b) {
+    yedi a > b bhane {
+        pathau a
+    } natra {
+        pathau b
+    }
+}
+
+kaam min(a, b) {
+    yedi a < b bhane {
+        pathau a
+    } natra {
+        pathau b
+    }
+}
+
+// Global constants
+maanau PI = 3.14159
+maanau E = 2.71828

@@ -1,0 +1,4 @@
+// Test error handling - error_import.nep
+bhan "Import error handling test garda:"
+aayaat "non_existent_file.nep"
+bhan "Yo execute hunu hudaina"

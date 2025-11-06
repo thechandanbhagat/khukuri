@@ -1,0 +1,39 @@
+// String utility functions - string_utils.nep
+// This file contains string manipulation functions
+
+kaam string_length(str) {
+    maanau count = 0
+    pratyek char ma str {
+        count = count + 1
+    }
+    pathau count
+}
+
+kaam count_vowels(str) {
+    maanau vowels = ["a", "e", "i", "o", "u", "A", "E", "I", "O", "U"]
+    maanau count = 0
+    
+    pratyek char ma str {
+        pratyek vowel ma vowels {
+            yedi char == vowel bhane {
+                count = count + 1
+                jane  // Continue to next character
+            }
+        }
+    }
+    
+    pathau count
+}
+
+kaam reverse_string(str) {
+    maanau chars = []
+    pratyek char ma str {
+        // Add character to front of list (simple reverse)
+        chars = [char]  // This is a simplified version
+    }
+    pathau chars
+}
+
+// Global string constants
+maanau GREETING = "Namaste"
+maanau FAREWELL = "Dhanyabaad"

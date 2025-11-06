@@ -1,0 +1,109 @@
+// Comprehensive Demo: Collections + For-Each + Functions
+
+// Student management system using all features
+maanau all_students = [
+    {"naam": "Ram Bahadur", "class": "10", "subjects": {"Math": 85, "Science": 92, "English": 78}},
+    {"naam": "Sita Sharma", "class": "10", "subjects": {"Math": 94, "Science": 88, "English": 91}},
+    {"naam": "Hari Thapa", "class": "10", "subjects": {"Math": 76, "Science": 82, "English": 85}}
+]
+
+// Function to calculate average marks for a student
+kaam calculate_average(subjects_dict) {
+    maanau total = 0
+    maanau count = 0
+    
+    pratyek subject ma subjects_dict {
+        total = total + subjects_dict[subject]
+        count = count + 1
+    }
+    
+    pathau total / count
+}
+
+// Function to get grade based on average
+kaam get_grade(average) {
+    yedi average >= 90 bhane {
+        pathau "A+"
+    } natra {
+        yedi average >= 80 bhane {
+            pathau "A"
+        } natra {
+            yedi average >= 70 bhane {
+                pathau "B"
+            } natra {
+                yedi average >= 60 bhane {
+                    pathau "C"
+                } natra {
+                    pathau "F"
+                }
+            }
+        }
+    }
+}
+
+// Process all students
+bhan "=== STUDENT REPORT CARD ==="
+
+pratyek student ma all_students {
+    bhan "Student Name:"
+    bhan student["naam"]
+    bhan "Class:"
+    bhan student["class"]
+    
+    bhan "Subject Marks:"
+    pratyek subject ma student["subjects"] {
+        bhan subject
+        bhan student["subjects"][subject]
+    }
+    
+    maanau avg = calculate_average(student["subjects"])
+    bhan "Average:"
+    bhan avg
+    
+    bhan "Grade:"
+    bhan get_grade(avg)
+    
+    bhan "---"
+}
+
+// Find top performer
+maanau top_student = ""
+maanau highest_avg = 0
+
+pratyek student ma all_students {
+    maanau avg = calculate_average(student["subjects"])
+    yedi avg > highest_avg bhane {
+        highest_avg = avg
+        top_student = student["naam"]
+    }
+}
+
+bhan "TOP PERFORMER:"
+bhan top_student
+bhan "with average:"
+bhan highest_avg
+
+// Subject-wise class analysis
+maanau subjects = ["Math", "Science", "English"]
+
+pratyek subject ma subjects {
+    bhan "=== SUBJECT ANALYSIS ==="
+    bhan subject
+    
+    maanau subject_total = 0
+    maanau student_count = 0
+    
+    pratyek student ma all_students {
+        maanau marks = student["subjects"][subject]
+        bhan student["naam"]
+        bhan marks
+        
+        subject_total = subject_total + marks
+        student_count = student_count + 1
+    }
+    
+    maanau class_average = subject_total / student_count
+    bhan "Class Average:"
+    bhan class_average
+    bhan "---"
+}

@@ -1,0 +1,22 @@
+// Example 3: Functions and Loops from the spec
+kaam is_even(number) {
+    yedi number % 2 == 0 bhane {
+        pathau sahi
+    } natra {
+        pathau galat
+    }
+}
+
+maanau count = 0
+maanau i = 1
+
+jaba samma i <= 10 {
+    yedi is_even(i) bhane {
+        bhan i
+        count = count + 1
+    }
+    i = i + 1
+}
+
+bhan "Total even numbers: "
+bhan count
