@@ -1,7 +1,7 @@
 # Nepali Slang Programming Language - Compiler Specification
 
 ## Project Overview
-Build an interpreter for a programming language that uses Nepali Gen-Z slang keywords. The interpreter will directly execute Nepali slang code without converting it to another language.
+Build an interpreter for a programming language that uses Nepali slang keywords. The interpreter will directly execute Nepali slang code without converting it to another language.
 
 **Project Name:** Khukuri: A Nepali Interpreter  
 **Implementation Language:** Rust  

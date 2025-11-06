@@ -1,6 +1,6 @@
 # Khukuri Language Support for VS Code
 
-This extension provides comprehensive language support for the Khukuri programming language - a fun, educational interpreter that uses Nepali Gen-Z slang keywords.
+This extension provides comprehensive language support for the Khukuri programming language - a fun, educational interpreter that uses Nepali slang keywords.
 
 ## Features
 

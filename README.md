@@ -1,6 +1,6 @@
-# Khukuri: A Nepali Gen-Z Slang Programming Language
+# Khukuri: A Nepali Slang Programming Language
 
-Khukuri is a fun, educational interpreter for a programming language that uses Nepali Gen-Z slang keywords. The language combines familiar programming concepts with Nepali slang to make programming more accessible and entertaining for Nepali speakers.
+Khukuri is a fun, educational interpreter for a programming language that uses Nepali slang keywords. The language combines familiar programming concepts with Nepali slang to make programming more accessible and entertaining for Nepali speakers.
 
 ## Features
 
@@ -9,7 +9,7 @@ Khukuri is a fun, educational interpreter for a programming language that uses N
 - **Function Support**: First-class functions with recursion support
 - **Variable Scoping**: Proper lexical scoping with nested environments
 - **REPL Mode**: Interactive mode for testing code snippets
-- **Nepali Gen-Z Output**: All console output and error messages in Nepali Gen-Z style
+- **Nepali Output**: All console output and error messages in Nepali style
 - **Import System**: Modular programming with `aayaat` keyword for code organization
 - **Error Handling**: Clear error messages with line and column information in Nepali
 
