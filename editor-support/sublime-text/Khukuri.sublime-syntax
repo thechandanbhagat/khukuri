@@ -1,0 +1,69 @@
+%YAML 1.2
+---
+# Khukuri Syntax Definition for Sublime Text
+name: Khukuri
+file_extensions:
+  - nep
+scope: source.khukuri
+
+contexts:
+  main:
+    - include: comments
+    - include: keywords
+    - include: strings
+    - include: numbers
+    - include: operators
+    - include: functions
+    - include: variables
+
+  comments:
+    - match: '//'
+      scope: punctuation.definition.comment.khukuri
+      push:
+        - meta_scope: comment.line.double-slash.khukuri
+        - match: $
+          pop: true
+
+  keywords:
+    - match: '\b(yedi|bhane|natra|jaba samma|pratyek|ma|rok|jane)\b'
+      scope: keyword.control.khukuri
+    - match: '\b(maanau|kaam|pathau|aayaat)\b'
+      scope: keyword.declaration.khukuri
+    - match: '\b(bhan)\b'
+      scope: keyword.other.khukuri
+    - match: '\b(ra|wa|hoina)\b'
+      scope: keyword.operator.logical.khukuri
+    - match: '\b(sahi|galat)\b'
+      scope: constant.language.boolean.khukuri
+
+  strings:
+    - match: '"'
+      scope: punctuation.definition.string.begin.khukuri
+      push:
+        - meta_scope: string.quoted.double.khukuri
+        - match: '\\.'
+          scope: constant.character.escape.khukuri
+        - match: '"'
+          scope: punctuation.definition.string.end.khukuri
+          pop: true
+
+  numbers:
+    - match: '\b\d+(\.\d+)?\b'
+      scope: constant.numeric.khukuri
+
+  operators:
+    - match: '='
+      scope: keyword.operator.assignment.khukuri
+    - match: '(==|!=|<=|>=|<|>)'
+      scope: keyword.operator.comparison.khukuri
+    - match: '(\+|-|\*|/|%)'
+      scope: keyword.operator.arithmetic.khukuri
+
+  functions:
+    - match: '\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()'
+      captures:
+        1: entity.name.function.khukuri
+
+  variables:
+    - match: '\b[a-zA-Z_][a-zA-Z0-9_]*\b'
+      scope: variable.other.khukuri
