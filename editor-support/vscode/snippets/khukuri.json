@@ -1,0 +1,141 @@
+{
+  "Variable Declaration": {
+    "prefix": "maanau",
+    "body": [
+      "maanau ${1:variable_name} = ${2:value}"
+    ],
+    "description": "Declare a variable in Khukuri"
+  },
+  "If Statement": {
+    "prefix": "yedi",
+    "body": [
+      "yedi ${1:condition} bhane {",
+      "\t${2:// code}",
+      "}"
+    ],
+    "description": "If statement in Khukuri"
+  },
+  "If-Else Statement": {
+    "prefix": "yedi-natra",
+    "body": [
+      "yedi ${1:condition} bhane {",
+      "\t${2:// if code}",
+      "} natra {",
+      "\t${3:// else code}",
+      "}"
+    ],
+    "description": "If-else statement in Khukuri"
+  },
+  "While Loop": {
+    "prefix": "jaba samma",
+    "body": [
+      "jaba samma ${1:condition} {",
+      "\t${2:// loop body}",
+      "}"
+    ],
+    "description": "While loop in Khukuri"
+  },
+  "For Each Loop": {
+    "prefix": "pratyek",
+    "body": [
+      "pratyek ${1:item} ma ${2:collection} {",
+      "\t${3:// loop body}",
+      "}"
+    ],
+    "description": "For each loop in Khukuri"
+  },
+  "Function Declaration": {
+    "prefix": "kaam",
+    "body": [
+      "kaam ${1:function_name}(${2:parameters}) {",
+      "\t${3:// function body}",
+      "\tpathau ${4:return_value}",
+      "}"
+    ],
+    "description": "Function declaration in Khukuri"
+  },
+  "Print Statement": {
+    "prefix": "bhan",
+    "body": [
+      "bhan ${1:\"message\"}"
+    ],
+    "description": "Print statement in Khukuri"
+  },
+  "Return Statement": {
+    "prefix": "pathau",
+    "body": [
+      "pathau ${1:value}"
+    ],
+    "description": "Return statement in Khukuri"
+  },
+  "Break Statement": {
+    "prefix": "rok",
+    "body": [
+      "rok"
+    ],
+    "description": "Break statement in Khukuri"
+  },
+  "Continue Statement": {
+    "prefix": "jane",
+    "body": [
+      "jane"
+    ],
+    "description": "Continue statement in Khukuri"
+  },
+  "Import Statement": {
+    "prefix": "aayaat",
+    "body": [
+      "aayaat \"${1:module_name}\""
+    ],
+    "description": "Import statement in Khukuri"
+  },
+  "List Declaration": {
+    "prefix": "list",
+    "body": [
+      "maanau ${1:list_name} = [${2:values}]"
+    ],
+    "description": "Create a list in Khukuri"
+  },
+  "Dictionary Declaration": {
+    "prefix": "dict",
+    "body": [
+      "maanau ${1:dict_name} = {${2:\"key\": \"value\"}}"
+    ],
+    "description": "Create a dictionary in Khukuri"
+  },
+  "Comment": {
+    "prefix": "//",
+    "body": [
+      "// ${1:comment}"
+    ],
+    "description": "Single line comment in Khukuri"
+  },
+  "Fibonacci Function": {
+    "prefix": "fibonacci",
+    "body": [
+      "kaam fibonacci(n) {",
+      "\tyedi n <= 1 bhane {",
+      "\t\tpathau n",
+      "\t}",
+      "\tpathau fibonacci(n - 1) + fibonacci(n - 2)",
+      "}"
+    ],
+    "description": "Fibonacci function template in Khukuri"
+  },
+  "Main Program Template": {
+    "prefix": "main",
+    "body": [
+      "// ${1:Program Name}",
+      "// ${2:Description}",
+      "",
+      "maanau ${3:variable} = ${4:value}",
+      "",
+      "yedi ${5:condition} bhane {",
+      "\tbhan \"${6:message}\"",
+      "}",
+      "",
+      "bhan ${7:output}"
+    ],
+    "description": "Main program template in Khukuri"
+  }
+}

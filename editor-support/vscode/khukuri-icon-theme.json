@@ -1,0 +1,31 @@
+{
+  "iconDefinitions": {
+    "_nep_file": {
+      "iconPath": "./khukuri.png"
+    }
+  },
+  "fileExtensions": {
+    "nep": "_nep_file"
+  },
+  "file": "_nep_file",
+  "fileNames": {},
+  "languageIds": {
+    "khukuri": "_nep_file"
+  },
+  "light": {
+    "fileExtensions": {
+      "nep": "_nep_file"
+    },
+    "languageIds": {
+      "khukuri": "_nep_file"
+    }
+  },
+  "highContrast": {
+    "fileExtensions": {
+      "nep": "_nep_file"
+    },
+    "languageIds": {
+      "khukuri": "_nep_file"
+    }
+  }
+}

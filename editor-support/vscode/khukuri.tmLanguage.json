@@ -1,0 +1,188 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Khukuri",
+  "fileTypes": [
+    "nep"
+  ],
+  "scopeName": "source.khukuri",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#functions"
+    },
+    {
+      "include": "#builtin-functions"
+    },
+    {
+      "include": "#control-structures"
+    },
+    {
+      "include": "#variables"
+    },
+    {
+      "include": "#punctuation"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.khukuri",
+          "match": "//.*$"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.khukuri",
+          "match": "\\b(yedi|bhane|natra|jaba samma|pratyek|ma|rok|jane)\\b"
+        },
+        {
+          "name": "keyword.declaration.khukuri", 
+          "match": "\\b(maanau|kaam|pathau|aayaat)\\b"
+        },
+        {
+          "name": "keyword.other.khukuri",
+          "match": "\\b(bhan)\\b"
+        },
+        {
+          "name": "keyword.operator.logical.khukuri",
+          "match": "\\b(ra|wa|hoina)\\b"
+        },
+        {
+          "name": "constant.language.boolean.khukuri",
+          "match": "\\b(sahi|galat)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.assignment.khukuri",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.comparison.khukuri",
+          "match": "(==|!=|<=|>=|<|>)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.khukuri",
+          "match": "(\\+|-|\\*|/|%)"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.khukuri",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.khukuri",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.khukuri",
+          "match": "\\b\\d+(\\.\\d+)?\\b"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "name": "entity.name.function.khukuri",
+          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()"
+        }
+      ]
+    },
+    "builtin-functions": {
+      "patterns": [
+        {
+          "name": "support.function.builtin.khukuri",
+          "match": "\\b(bhan)\\b"
+        }
+      ]
+    },
+    "control-structures": {
+      "patterns": [
+        {
+          "begin": "\\b(yedi)\\s+(.*)\\s+(bhane)\\s*\\{",
+          "end": "\\}",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.conditional.khukuri" },
+            "2": { "name": "meta.expression.khukuri" },
+            "3": { "name": "keyword.control.conditional.khukuri" }
+          },
+          "patterns": [
+            { "include": "$self" }
+          ]
+        },
+        {
+          "begin": "\\b(jaba samma)\\s+(.*)\\s*\\{",
+          "end": "\\}",
+          "beginCaptures": {
+            "1": { "name": "keyword.control.loop.khukuri" },
+            "2": { "name": "meta.expression.khukuri" }
+          },
+          "patterns": [
+            { "include": "$self" }
+          ]
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.definition.block.khukuri",
+          "match": "[{}]"
+        },
+        {
+          "name": "punctuation.definition.array.khukuri",
+          "match": "[\\[\\]]"
+        },
+        {
+          "name": "punctuation.definition.parameters.khukuri",
+          "match": "[()]"
+        },
+        {
+          "name": "punctuation.separator.khukuri",
+          "match": ","
+        },
+        {
+          "name": "punctuation.terminator.khukuri",
+          "match": ";"
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.other.khukuri",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        }
+      ]
+    }
+  }
+}

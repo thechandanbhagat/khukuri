@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+  <!-- Khukuri blade shape -->
+  <path d="M8 2 L12 6 L10 8 L8 10 L6 8 L4 6 Z" 
+        fill="#569CD6" 
+        stroke="#1E1E1E" 
+        stroke-width="0.5"/>
+  
+  <!-- Handle -->
+  <rect x="7" y="10" width="2" height="4" 
+        fill="#8B4513" 
+        stroke="#1E1E1E" 
+        stroke-width="0.3"/>
+  
+  <!-- Nepali accent dot -->
+  <circle cx="8" cy="6" r="1" fill="#FF6B6B"/>
+  
+  <!-- File extension indicator -->
+  <text x="1" y="15" font-family="Arial, sans-serif" font-size="3" fill="#C5C5C5">.nep</text>
+</svg>

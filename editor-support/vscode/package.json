@@ -1,0 +1,75 @@
+{
+  "name": "khukuri-language-support",
+  "displayName": "Khukuri Language Support", 
+  "description": "Syntax highlighting for Khukuri - Nepali Gen-Z Programming Language",
+  "version": "1.3.0",
+  "publisher": "thechandanbhagat",
+  "icon": "khukuri.png",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "khukuri",
+    "nepali",
+    "nepal",
+    "gen-z",
+    "programming language",
+    "syntax highlighting",
+    "nep"
+  ],
+  "galleryBanner": {
+    "color": "#DC143C",
+    "theme": "dark"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "khukuri",
+        "aliases": [
+          "Khukuri",
+          "khukuri"
+        ],
+        "extensions": [
+          ".nep"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./khukuri.png",
+          "dark": "./khukuri.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "khukuri",
+        "scopeName": "source.khukuri",
+        "path": "./khukuri.tmLanguage.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "khukuri-icons",
+        "label": "Khukuri File Icons",
+        "path": "./khukuri-icon-theme.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "khukuri",
+        "path": "./snippets/khukuri.json"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thechandanbhagat/khukuri.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thechandanbhagat/khukuri/issues"
+  },
+  "homepage": "https://github.com/thechandanbhagat/khukuri#readme",
+  "license": "MIT"
+}
