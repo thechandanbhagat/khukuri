@@ -542,3 +542,499 @@ impl Interpreter {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::ASTNode;
+
+    #[test]
+    fn test_division_by_zero() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("10".to_string())),
+            "/".to_string(),
+            Box::new(ASTNode::Number("0".to_string())),
+        );
+        let result = interp.interpret(&ast);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Division by zero"));
+    }
+
+    #[test]
+    fn test_modulo_by_zero() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("10".to_string())),
+            "%".to_string(),
+            Box::new(ASTNode::Number("0".to_string())),
+        );
+        let result = interp.interpret(&ast);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Modulo by zero"));
+    }
+
+    #[test]
+    fn test_addition() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("5".to_string())),
+            "+".to_string(),
+            Box::new(ASTNode::Number("3".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Number(8.0));
+    }
+
+    #[test]
+    fn test_subtraction() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("10".to_string())),
+            "-".to_string(),
+            Box::new(ASTNode::Number("3".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Number(7.0));
+    }
+
+    #[test]
+    fn test_multiplication() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("5".to_string())),
+            "*".to_string(),
+            Box::new(ASTNode::Number("3".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Number(15.0));
+    }
+
+    #[test]
+    fn test_division() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("10".to_string())),
+            "/".to_string(),
+            Box::new(ASTNode::Number("2".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Number(5.0));
+    }
+
+    #[test]
+    fn test_modulo() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("10".to_string())),
+            "%".to_string(),
+            Box::new(ASTNode::Number("3".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Number(1.0));
+    }
+
+    #[test]
+    fn test_comparison_greater_than() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("5".to_string())),
+            ">".to_string(),
+            Box::new(ASTNode::Number("3".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Boolean(true));
+    }
+
+    #[test]
+    fn test_comparison_less_than() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("3".to_string())),
+            "<".to_string(),
+            Box::new(ASTNode::Number("5".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Boolean(true));
+    }
+
+    #[test]
+    fn test_comparison_equality() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("5".to_string())),
+            "==".to_string(),
+            Box::new(ASTNode::Number("5".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Boolean(true));
+    }
+
+    #[test]
+    fn test_comparison_not_equal() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Number("5".to_string())),
+            "!=".to_string(),
+            Box::new(ASTNode::Number("3".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Boolean(true));
+    }
+
+    #[test]
+    fn test_string_concatenation() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::String("hello".to_string())),
+            "+".to_string(),
+            Box::new(ASTNode::String(" world".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::String("hello world".to_string()));
+    }
+
+    #[test]
+    fn test_string_number_concatenation() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::String("number: ".to_string())),
+            "+".to_string(),
+            Box::new(ASTNode::Number("42".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::String("number: 42".to_string()));
+    }
+
+    #[test]
+    fn test_logical_and_true() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Boolean(true)),
+            "ra".to_string(),
+            Box::new(ASTNode::Boolean(true)),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Boolean(true));
+    }
+
+    #[test]
+    fn test_logical_and_false() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Boolean(true)),
+            "ra".to_string(),
+            Box::new(ASTNode::Boolean(false)),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Boolean(false));
+    }
+
+    #[test]
+    fn test_logical_or_true() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Boolean(true)),
+            "wa".to_string(),
+            Box::new(ASTNode::Boolean(false)),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Boolean(true));
+    }
+
+    #[test]
+    fn test_logical_or_false() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_binary_op(
+            Box::new(ASTNode::Boolean(false)),
+            "wa".to_string(),
+            Box::new(ASTNode::Boolean(false)),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Boolean(false));
+    }
+
+    #[test]
+    fn test_unary_not() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_unary_op(
+            "hoina".to_string(),
+            Box::new(ASTNode::Boolean(true)),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Boolean(false));
+    }
+
+    #[test]
+    fn test_unary_minus() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_unary_op(
+            "-".to_string(),
+            Box::new(ASTNode::Number("5".to_string())),
+        );
+        let result = interp.interpret(&ast).unwrap();
+        assert_eq!(result, Value::Number(-5.0));
+    }
+
+    #[test]
+    fn test_var_declaration_and_access() {
+        let mut interp = Interpreter::new();
+        let program = ASTNode::new_program(vec![
+            Box::new(ASTNode::new_var_declaration(
+                "x".to_string(),
+                None,
+                Box::new(ASTNode::Number("42".to_string())),
+            )),
+            Box::new(ASTNode::Identifier("x".to_string())),
+        ]);
+        let result = interp.interpret(&program).unwrap();
+        assert_eq!(result, Value::Number(42.0));
+    }
+
+    #[test]
+    fn test_undefined_variable() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::Identifier("undefined".to_string());
+        let result = interp.interpret(&ast);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Undefined variable"));
+    }
+
+    #[test]
+    fn test_assignment() {
+        let mut interp = Interpreter::new();
+        let program = ASTNode::new_program(vec![
+            Box::new(ASTNode::new_var_declaration(
+                "x".to_string(),
+                None,
+                Box::new(ASTNode::Number("10".to_string())),
+            )),
+            Box::new(ASTNode::new_assignment(
+                "x".to_string(),
+                Box::new(ASTNode::Number("20".to_string())),
+            )),
+            Box::new(ASTNode::Identifier("x".to_string())),
+        ]);
+        let result = interp.interpret(&program).unwrap();
+        assert_eq!(result, Value::Number(20.0));
+    }
+
+    #[test]
+    fn test_list_literal() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_list_literal(vec![
+            Box::new(ASTNode::Number("1".to_string())),
+            Box::new(ASTNode::Number("2".to_string())),
+            Box::new(ASTNode::Number("3".to_string())),
+        ]);
+        let result = interp.interpret(&ast).unwrap();
+        match result {
+            Value::List(list) => {
+                assert_eq!(list.len(), 3);
+                assert_eq!(list[0], Value::Number(1.0));
+                assert_eq!(list[1], Value::Number(2.0));
+                assert_eq!(list[2], Value::Number(3.0));
+            }
+            _ => panic!("Expected list"),
+        }
+    }
+
+    #[test]
+    fn test_list_index_access() {
+        let mut interp = Interpreter::new();
+        let program = ASTNode::new_program(vec![
+            Box::new(ASTNode::new_var_declaration(
+                "list".to_string(),
+                None,
+                Box::new(ASTNode::new_list_literal(vec![
+                    Box::new(ASTNode::Number("10".to_string())),
+                    Box::new(ASTNode::Number("20".to_string())),
+                ])),
+            )),
+            Box::new(ASTNode::new_index_access(
+                Box::new(ASTNode::Identifier("list".to_string())),
+                Box::new(ASTNode::Number("0".to_string())),
+            )),
+        ]);
+        let result = interp.interpret(&program).unwrap();
+        assert_eq!(result, Value::Number(10.0));
+    }
+
+    #[test]
+    fn test_list_index_out_of_bounds() {
+        let mut interp = Interpreter::new();
+        let program = ASTNode::new_program(vec![
+            Box::new(ASTNode::new_var_declaration(
+                "list".to_string(),
+                None,
+                Box::new(ASTNode::new_list_literal(vec![
+                    Box::new(ASTNode::Number("10".to_string())),
+                ])),
+            )),
+            Box::new(ASTNode::new_index_access(
+                Box::new(ASTNode::Identifier("list".to_string())),
+                Box::new(ASTNode::Number("5".to_string())),
+            )),
+        ]);
+        let result = interp.interpret(&program);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("out of bounds"));
+    }
+
+    #[test]
+    fn test_dictionary_literal() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_dictionary_literal(vec![
+            ("key".to_string(), Box::new(ASTNode::Number("42".to_string()))),
+        ]);
+        let result = interp.interpret(&ast).unwrap();
+        match result {
+            Value::Dictionary(dict) => {
+                assert_eq!(dict.len(), 1);
+                assert_eq!(dict.get("key"), Some(&Value::Number(42.0)));
+            }
+            _ => panic!("Expected dictionary"),
+        }
+    }
+
+    #[test]
+    fn test_dictionary_key_not_found() {
+        let mut interp = Interpreter::new();
+        let program = ASTNode::new_program(vec![
+            Box::new(ASTNode::new_var_declaration(
+                "dict".to_string(),
+                None,
+                Box::new(ASTNode::new_dictionary_literal(vec![
+                    ("key".to_string(), Box::new(ASTNode::Number("42".to_string()))),
+                ])),
+            )),
+            Box::new(ASTNode::new_index_access(
+                Box::new(ASTNode::Identifier("dict".to_string())),
+                Box::new(ASTNode::String("missing".to_string())),
+            )),
+        ]);
+        let result = interp.interpret(&program);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("not found"));
+    }
+
+    #[test]
+    fn test_break_outside_loop() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::Break;
+        let result = interp.interpret(&ast);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Break statement outside loop"));
+    }
+
+    #[test]
+    fn test_continue_outside_loop() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::Continue;
+        let result = interp.interpret(&ast);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Continue statement outside loop"));
+    }
+
+    #[test]
+    fn test_if_statement_true_branch() {
+        let mut interp = Interpreter::new();
+        let program = ASTNode::new_program(vec![
+            Box::new(ASTNode::new_var_declaration(
+                "x".to_string(),
+                None,
+                Box::new(ASTNode::Number("0".to_string())),
+            )),
+            Box::new(ASTNode::new_if_statement(
+                Box::new(ASTNode::Boolean(true)),
+                vec![Box::new(ASTNode::new_assignment(
+                    "x".to_string(),
+                    Box::new(ASTNode::Number("1".to_string())),
+                ))],
+                None,
+            )),
+            Box::new(ASTNode::Identifier("x".to_string())),
+        ]);
+        let result = interp.interpret(&program).unwrap();
+        assert_eq!(result, Value::Number(1.0));
+    }
+
+    #[test]
+    fn test_if_statement_false_branch() {
+        let mut interp = Interpreter::new();
+        let program = ASTNode::new_program(vec![
+            Box::new(ASTNode::new_var_declaration(
+                "x".to_string(),
+                None,
+                Box::new(ASTNode::Number("0".to_string())),
+            )),
+            Box::new(ASTNode::new_if_statement(
+                Box::new(ASTNode::Boolean(false)),
+                vec![Box::new(ASTNode::new_assignment(
+                    "x".to_string(),
+                    Box::new(ASTNode::Number("1".to_string())),
+                ))],
+                Some(vec![Box::new(ASTNode::new_assignment(
+                    "x".to_string(),
+                    Box::new(ASTNode::Number("2".to_string())),
+                ))]),
+            )),
+            Box::new(ASTNode::Identifier("x".to_string())),
+        ]);
+        let result = interp.interpret(&program).unwrap();
+        assert_eq!(result, Value::Number(2.0));
+    }
+
+    #[test]
+    fn test_function_declaration_and_call() {
+        let mut interp = Interpreter::new();
+        let program = ASTNode::new_program(vec![
+            Box::new(ASTNode::new_function_declaration(
+                "add".to_string(),
+                vec!["a".to_string(), "b".to_string()],
+                vec![Box::new(ASTNode::Return(Box::new(ASTNode::new_binary_op(
+                    Box::new(ASTNode::Identifier("a".to_string())),
+                    "+".to_string(),
+                    Box::new(ASTNode::Identifier("b".to_string())),
+                ))))],
+            )),
+            Box::new(ASTNode::new_function_call(
+                "add".to_string(),
+                vec![
+                    Box::new(ASTNode::Number("5".to_string())),
+                    Box::new(ASTNode::Number("3".to_string())),
+                ],
+            )),
+        ]);
+        let result = interp.interpret(&program).unwrap();
+        assert_eq!(result, Value::Number(8.0));
+    }
+
+    #[test]
+    fn test_undefined_function() {
+        let mut interp = Interpreter::new();
+        let ast = ASTNode::new_function_call("undefined".to_string(), vec![]);
+        let result = interp.interpret(&ast);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Undefined function"));
+    }
+
+    #[test]
+    fn test_function_wrong_argument_count() {
+        let mut interp = Interpreter::new();
+        let program = ASTNode::new_program(vec![
+            Box::new(ASTNode::new_function_declaration(
+                "add".to_string(),
+                vec!["a".to_string(), "b".to_string()],
+                vec![Box::new(ASTNode::Return(Box::new(ASTNode::Number("0".to_string()))))],
+            )),
+            Box::new(ASTNode::new_function_call(
+                "add".to_string(),
+                vec![Box::new(ASTNode::Number("5".to_string()))],
+            )),
+        ]);
+        let result = interp.interpret(&program);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("expects"));
+    }
+}

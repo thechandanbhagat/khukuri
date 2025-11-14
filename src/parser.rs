@@ -717,3 +717,968 @@ impl Parser {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::token::{Token, TokenType};
+
+    // Helper function to create tokens easily
+    fn make_token(token_type: TokenType, value: &str) -> Token {
+        Token::new(token_type, value.to_string(), 1, 1)
+    }
+
+    fn keyword(s: &str) -> Token {
+        make_token(TokenType::Keyword, s)
+    }
+
+    fn identifier(s: &str) -> Token {
+        make_token(TokenType::Identifier, s)
+    }
+
+    fn number(s: &str) -> Token {
+        make_token(TokenType::Number, s)
+    }
+
+    fn string(s: &str) -> Token {
+        make_token(TokenType::String, s)
+    }
+
+    fn operator(s: &str) -> Token {
+        make_token(TokenType::Operator, s)
+    }
+
+    fn eof() -> Token {
+        make_token(TokenType::EOF, "")
+    }
+
+    #[test]
+    fn test_parse_empty_program() {
+        let tokens = vec![eof()];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+        match ast {
+            ASTNode::Program(stmts) => assert_eq!(stmts.len(), 0),
+            _ => panic!("Expected Program node"),
+        }
+    }
+
+    #[test]
+    fn test_parse_var_declaration() {
+        let tokens = vec![
+            keyword("maanau"),
+            identifier("x"),
+            operator("="),
+            number("5"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                assert_eq!(stmts.len(), 1);
+                match stmts[0].as_ref() {
+                    ASTNode::VarDeclaration { name, value, .. } => {
+                        assert_eq!(name, "x");
+                        match value.as_ref() {
+                            ASTNode::Number(n) => assert_eq!(n, "5"),
+                            _ => panic!("Expected number"),
+                        }
+                    }
+                    _ => panic!("Expected VarDeclaration"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_assignment() {
+        let tokens = vec![
+            identifier("x"),
+            operator("="),
+            number("10"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                assert_eq!(stmts.len(), 1);
+                match stmts[0].as_ref() {
+                    ASTNode::Assignment { name, value } => {
+                        assert_eq!(name, "x");
+                        match value.as_ref() {
+                            ASTNode::Number(n) => assert_eq!(n, "10"),
+                            _ => panic!("Expected number"),
+                        }
+                    }
+                    _ => panic!("Expected Assignment"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_operator_precedence_multiplication_over_addition() {
+        // Test that 2 + 3 * 4 is parsed as 2 + (3 * 4) = 14, not (2 + 3) * 4 = 20
+        let tokens = vec![
+            number("2"),
+            operator("+"),
+            number("3"),
+            operator("*"),
+            number("4"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::BinaryOp { left, operator: op, right } => {
+                        assert_eq!(op, "+");
+                        // Left should be 2
+                        match left.as_ref() {
+                            ASTNode::Number(n) => assert_eq!(n, "2"),
+                            _ => panic!("Expected left to be 2"),
+                        }
+                        // Right should be (3 * 4)
+                        match right.as_ref() {
+                            ASTNode::BinaryOp { left: l2, operator: op2, right: r2 } => {
+                                assert_eq!(op2, "*");
+                                match l2.as_ref() {
+                                    ASTNode::Number(n) => assert_eq!(n, "3"),
+                                    _ => panic!("Expected 3"),
+                                }
+                                match r2.as_ref() {
+                                    ASTNode::Number(n) => assert_eq!(n, "4"),
+                                    _ => panic!("Expected 4"),
+                                }
+                            }
+                            _ => panic!("Expected right to be multiplication"),
+                        }
+                    }
+                    _ => panic!("Expected BinaryOp"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_operator_precedence_division_over_subtraction() {
+        // Test that 10 - 6 / 2 is parsed as 10 - (6 / 2) = 7, not (10 - 6) / 2 = 2
+        let tokens = vec![
+            number("10"),
+            operator("-"),
+            number("6"),
+            operator("/"),
+            number("2"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::BinaryOp { left, operator: op, right } => {
+                        assert_eq!(op, "-");
+                        match left.as_ref() {
+                            ASTNode::Number(n) => assert_eq!(n, "10"),
+                            _ => panic!("Expected 10"),
+                        }
+                        match right.as_ref() {
+                            ASTNode::BinaryOp { operator: op2, .. } => {
+                                assert_eq!(op2, "/");
+                            }
+                            _ => panic!("Expected division"),
+                        }
+                    }
+                    _ => panic!("Expected BinaryOp"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_operator_precedence_comparison_over_logical_and() {
+        // Test that 5 > 3 ra 10 < 20 is parsed as (5 > 3) ra (10 < 20)
+        let tokens = vec![
+            number("5"),
+            operator(">"),
+            number("3"),
+            keyword("ra"),
+            number("10"),
+            operator("<"),
+            number("20"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::BinaryOp { operator: op, .. } => {
+                        assert_eq!(op, "ra");
+                    }
+                    _ => panic!("Expected BinaryOp with 'ra'"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_operator_precedence_logical_and_over_logical_or() {
+        // Test that A wa B ra C is parsed as A wa (B ra C)
+        let tokens = vec![
+            keyword("sahi"),
+            keyword("wa"),
+            keyword("galat"),
+            keyword("ra"),
+            keyword("sahi"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::BinaryOp { operator: op, right, .. } => {
+                        assert_eq!(op, "wa");
+                        // Right should be (galat ra sahi)
+                        match right.as_ref() {
+                            ASTNode::BinaryOp { operator: op2, .. } => {
+                                assert_eq!(op2, "ra");
+                            }
+                            _ => panic!("Expected ra operator"),
+                        }
+                    }
+                    _ => panic!("Expected BinaryOp"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_parentheses_override_precedence() {
+        // Test that (2 + 3) * 4 is parsed as (2 + 3) * 4 = 20, not 2 + (3 * 4) = 14
+        let tokens = vec![
+            make_token(TokenType::LParen, "("),
+            number("2"),
+            operator("+"),
+            number("3"),
+            make_token(TokenType::RParen, ")"),
+            operator("*"),
+            number("4"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::BinaryOp { operator: op, left, .. } => {
+                        assert_eq!(op, "*");
+                        // Left should be (2 + 3)
+                        match left.as_ref() {
+                            ASTNode::BinaryOp { operator: op2, .. } => {
+                                assert_eq!(op2, "+");
+                            }
+                            _ => panic!("Expected addition"),
+                        }
+                    }
+                    _ => panic!("Expected BinaryOp"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_unary_minus() {
+        let tokens = vec![
+            operator("-"),
+            number("5"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::UnaryOp { operator: op, operand } => {
+                        assert_eq!(op, "-");
+                        match operand.as_ref() {
+                            ASTNode::Number(n) => assert_eq!(n, "5"),
+                            _ => panic!("Expected number"),
+                        }
+                    }
+                    _ => panic!("Expected UnaryOp"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_unary_not() {
+        let tokens = vec![
+            keyword("hoina"),
+            keyword("sahi"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::UnaryOp { operator: op, .. } => {
+                        assert_eq!(op, "hoina");
+                    }
+                    _ => panic!("Expected UnaryOp"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_function_declaration() {
+        let tokens = vec![
+            keyword("kaam"),
+            identifier("add"),
+            make_token(TokenType::LParen, "("),
+            identifier("a"),
+            make_token(TokenType::Comma, ","),
+            identifier("b"),
+            make_token(TokenType::RParen, ")"),
+            make_token(TokenType::LBrace, "{"),
+            keyword("pathau"),
+            identifier("a"),
+            make_token(TokenType::RBrace, "}"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::FunctionDeclaration { name, parameters, body } => {
+                        assert_eq!(name, "add");
+                        assert_eq!(parameters.len(), 2);
+                        assert_eq!(parameters[0], "a");
+                        assert_eq!(parameters[1], "b");
+                        assert_eq!(body.len(), 1);
+                    }
+                    _ => panic!("Expected FunctionDeclaration"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_function_call() {
+        let tokens = vec![
+            identifier("add"),
+            make_token(TokenType::LParen, "("),
+            number("5"),
+            make_token(TokenType::Comma, ","),
+            number("10"),
+            make_token(TokenType::RParen, ")"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::FunctionCall { name, arguments } => {
+                        assert_eq!(name, "add");
+                        assert_eq!(arguments.len(), 2);
+                    }
+                    _ => panic!("Expected FunctionCall"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_if_statement() {
+        let tokens = vec![
+            keyword("yedi"),
+            keyword("sahi"),
+            keyword("bhane"),
+            make_token(TokenType::LBrace, "{"),
+            keyword("bhan"),
+            string("yes"),
+            make_token(TokenType::RBrace, "}"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::IfStatement { condition, then_block, else_block } => {
+                        match condition.as_ref() {
+                            ASTNode::Boolean(b) => assert_eq!(*b, true),
+                            _ => panic!("Expected boolean"),
+                        }
+                        assert_eq!(then_block.len(), 1);
+                        assert!(else_block.is_none());
+                    }
+                    _ => panic!("Expected IfStatement"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_if_else_statement() {
+        let tokens = vec![
+            keyword("yedi"),
+            keyword("galat"),
+            keyword("bhane"),
+            make_token(TokenType::LBrace, "{"),
+            make_token(TokenType::RBrace, "}"),
+            keyword("natra"),
+            make_token(TokenType::LBrace, "{"),
+            keyword("bhan"),
+            string("no"),
+            make_token(TokenType::RBrace, "}"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::IfStatement { else_block, .. } => {
+                        assert!(else_block.is_some());
+                        assert_eq!(else_block.as_ref().unwrap().len(), 1);
+                    }
+                    _ => panic!("Expected IfStatement"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_while_loop() {
+        let tokens = vec![
+            keyword("jaba"),
+            keyword("samma"),
+            keyword("sahi"),
+            make_token(TokenType::LBrace, "{"),
+            keyword("bhan"),
+            string("loop"),
+            make_token(TokenType::RBrace, "}"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::WhileLoop { condition, body } => {
+                        match condition.as_ref() {
+                            ASTNode::Boolean(b) => assert_eq!(*b, true),
+                            _ => panic!("Expected boolean"),
+                        }
+                        assert_eq!(body.len(), 1);
+                    }
+                    _ => panic!("Expected WhileLoop"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_for_each_loop() {
+        let tokens = vec![
+            keyword("pratyek"),
+            identifier("item"),
+            keyword("ma"),
+            identifier("list"),
+            make_token(TokenType::LBrace, "{"),
+            keyword("bhan"),
+            identifier("item"),
+            make_token(TokenType::RBrace, "}"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::ForEachLoop { variable, iterable, body } => {
+                        assert_eq!(variable, "item");
+                        match iterable.as_ref() {
+                            ASTNode::Identifier(name) => assert_eq!(name, "list"),
+                            _ => panic!("Expected identifier"),
+                        }
+                        assert_eq!(body.len(), 1);
+                    }
+                    _ => panic!("Expected ForEachLoop"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_list_literal() {
+        let tokens = vec![
+            make_token(TokenType::LBracket, "["),
+            number("1"),
+            make_token(TokenType::Comma, ","),
+            number("2"),
+            make_token(TokenType::Comma, ","),
+            number("3"),
+            make_token(TokenType::RBracket, "]"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::ListLiteral(elements) => {
+                        assert_eq!(elements.len(), 3);
+                    }
+                    _ => panic!("Expected ListLiteral"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_empty_list() {
+        let tokens = vec![
+            make_token(TokenType::LBracket, "["),
+            make_token(TokenType::RBracket, "]"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::ListLiteral(elements) => {
+                        assert_eq!(elements.len(), 0);
+                    }
+                    _ => panic!("Expected ListLiteral"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_dictionary_literal() {
+        let tokens = vec![
+            make_token(TokenType::LBrace, "{"),
+            string("key"),
+            make_token(TokenType::Colon, ":"),
+            number("42"),
+            make_token(TokenType::RBrace, "}"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::DictionaryLiteral(pairs) => {
+                        assert_eq!(pairs.len(), 1);
+                        assert_eq!(pairs[0].0, "key");
+                    }
+                    _ => panic!("Expected DictionaryLiteral"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_index_access() {
+        let tokens = vec![
+            identifier("list"),
+            make_token(TokenType::LBracket, "["),
+            number("0"),
+            make_token(TokenType::RBracket, "]"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::IndexAccess { object, index } => {
+                        match object.as_ref() {
+                            ASTNode::Identifier(name) => assert_eq!(name, "list"),
+                            _ => panic!("Expected identifier"),
+                        }
+                        match index.as_ref() {
+                            ASTNode::Number(n) => assert_eq!(n, "0"),
+                            _ => panic!("Expected number"),
+                        }
+                    }
+                    _ => panic!("Expected IndexAccess"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_index_assignment() {
+        let tokens = vec![
+            identifier("list"),
+            make_token(TokenType::LBracket, "["),
+            number("0"),
+            make_token(TokenType::RBracket, "]"),
+            operator("="),
+            number("42"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::IndexAssignment { object, index, value } => {
+                        match object.as_ref() {
+                            ASTNode::Identifier(name) => assert_eq!(name, "list"),
+                            _ => panic!("Expected identifier"),
+                        }
+                        match index.as_ref() {
+                            ASTNode::Number(n) => assert_eq!(n, "0"),
+                            _ => panic!("Expected number"),
+                        }
+                        match value.as_ref() {
+                            ASTNode::Number(n) => assert_eq!(n, "42"),
+                            _ => panic!("Expected number"),
+                        }
+                    }
+                    _ => panic!("Expected IndexAssignment"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_print_statement() {
+        let tokens = vec![
+            keyword("bhan"),
+            string("hello"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::Print(_) => {}
+                    _ => panic!("Expected Print"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_return_statement() {
+        let tokens = vec![
+            keyword("pathau"),
+            number("42"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::Return(value) => {
+                        match value.as_ref() {
+                            ASTNode::Number(n) => assert_eq!(n, "42"),
+                            _ => panic!("Expected number"),
+                        }
+                    }
+                    _ => panic!("Expected Return"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_break_statement() {
+        let tokens = vec![
+            keyword("rok"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::Break => {}
+                    _ => panic!("Expected Break"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_continue_statement() {
+        let tokens = vec![
+            keyword("jane"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::Continue => {}
+                    _ => panic!("Expected Continue"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_import_statement() {
+        let tokens = vec![
+            keyword("aayaat"),
+            string("module.nep"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::Import { filename } => {
+                        assert_eq!(filename, "module.nep");
+                    }
+                    _ => panic!("Expected Import"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+
+    #[test]
+    fn test_parse_comparison_operators() {
+        let operators = vec!["==", "!=", ">", "<", ">=", "<="];
+
+        for op in operators {
+            let tokens = vec![
+                number("5"),
+                operator(op),
+                number("10"),
+                eof(),
+            ];
+            let mut parser = Parser::new(tokens);
+            let ast = parser.parse().unwrap();
+
+            match ast {
+                ASTNode::Program(stmts) => {
+                    match stmts[0].as_ref() {
+                        ASTNode::BinaryOp { operator, .. } => {
+                            assert_eq!(operator, op);
+                        }
+                        _ => panic!("Expected BinaryOp for operator {}", op),
+                    }
+                }
+                _ => panic!("Expected Program"),
+            }
+        }
+    }
+
+    #[test]
+    fn test_parse_all_arithmetic_operators() {
+        let operators = vec!["+", "-", "*", "/", "%"];
+
+        for op in operators {
+            let tokens = vec![
+                number("10"),
+                operator(op),
+                number("5"),
+                eof(),
+            ];
+            let mut parser = Parser::new(tokens);
+            let ast = parser.parse().unwrap();
+
+            match ast {
+                ASTNode::Program(stmts) => {
+                    match stmts[0].as_ref() {
+                        ASTNode::BinaryOp { operator, .. } => {
+                            assert_eq!(operator, op);
+                        }
+                        _ => panic!("Expected BinaryOp for operator {}", op),
+                    }
+                }
+                _ => panic!("Expected Program"),
+            }
+        }
+    }
+
+    #[test]
+    fn test_parse_complex_expression() {
+        // Test: (5 + 3) * 2 - 10 / 5
+        let tokens = vec![
+            make_token(TokenType::LParen, "("),
+            number("5"),
+            operator("+"),
+            number("3"),
+            make_token(TokenType::RParen, ")"),
+            operator("*"),
+            number("2"),
+            operator("-"),
+            number("10"),
+            operator("/"),
+            number("5"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let result = parser.parse();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_nested_function_calls() {
+        // Test: add(mul(2, 3), 5)
+        let tokens = vec![
+            identifier("add"),
+            make_token(TokenType::LParen, "("),
+            identifier("mul"),
+            make_token(TokenType::LParen, "("),
+            number("2"),
+            make_token(TokenType::Comma, ","),
+            number("3"),
+            make_token(TokenType::RParen, ")"),
+            make_token(TokenType::Comma, ","),
+            number("5"),
+            make_token(TokenType::RParen, ")"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let result = parser.parse();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_chained_index_access() {
+        // Test: list[0][1]
+        let tokens = vec![
+            identifier("list"),
+            make_token(TokenType::LBracket, "["),
+            number("0"),
+            make_token(TokenType::RBracket, "]"),
+            make_token(TokenType::LBracket, "["),
+            number("1"),
+            make_token(TokenType::RBracket, "]"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let result = parser.parse();
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_parse_error_missing_closing_paren() {
+        let tokens = vec![
+            make_token(TokenType::LParen, "("),
+            number("5"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let result = parser.parse();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_error_unexpected_token() {
+        let tokens = vec![
+            operator("+"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let result = parser.parse();
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_modulo_operator_precedence() {
+        // Test that 10 + 5 % 3 is parsed as 10 + (5 % 3)
+        let tokens = vec![
+            number("10"),
+            operator("+"),
+            number("5"),
+            operator("%"),
+            number("3"),
+            eof(),
+        ];
+        let mut parser = Parser::new(tokens);
+        let ast = parser.parse().unwrap();
+
+        match ast {
+            ASTNode::Program(stmts) => {
+                match stmts[0].as_ref() {
+                    ASTNode::BinaryOp { operator: op, right, .. } => {
+                        assert_eq!(op, "+");
+                        match right.as_ref() {
+                            ASTNode::BinaryOp { operator: op2, .. } => {
+                                assert_eq!(op2, "%");
+                            }
+                            _ => panic!("Expected modulo operation"),
+                        }
+                    }
+                    _ => panic!("Expected BinaryOp"),
+                }
+            }
+            _ => panic!("Expected Program"),
+        }
+    }
+}
