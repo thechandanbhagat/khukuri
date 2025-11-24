@@ -37,7 +37,7 @@ pub enum ASTNode {
     Import {
         filename: String,
     },
-    
+
     // Expressions
     BinaryOp {
         left: Box<ASTNode>,
@@ -73,15 +73,23 @@ impl ASTNode {
     pub fn new_program(statements: Vec<Box<ASTNode>>) -> Self {
         ASTNode::Program(statements)
     }
-    
-    pub fn new_var_declaration(name: String, type_hint: Option<String>, value: Box<ASTNode>) -> Self {
-        ASTNode::VarDeclaration { name, type_hint, value }
+
+    pub fn new_var_declaration(
+        name: String,
+        type_hint: Option<String>,
+        value: Box<ASTNode>,
+    ) -> Self {
+        ASTNode::VarDeclaration {
+            name,
+            type_hint,
+            value,
+        }
     }
-    
+
     pub fn new_assignment(name: String, value: Box<ASTNode>) -> Self {
         ASTNode::Assignment { name, value }
     }
-    
+
     pub fn new_if_statement(
         condition: Box<ASTNode>,
         then_block: Vec<Box<ASTNode>>,
@@ -93,19 +101,23 @@ impl ASTNode {
             else_block,
         }
     }
-    
+
     pub fn new_while_loop(condition: Box<ASTNode>, body: Vec<Box<ASTNode>>) -> Self {
         ASTNode::WhileLoop { condition, body }
     }
-    
+
     pub fn new_for_each_loop(
         variable: String,
         iterable: Box<ASTNode>,
         body: Vec<Box<ASTNode>>,
     ) -> Self {
-        ASTNode::ForEachLoop { variable, iterable, body }
+        ASTNode::ForEachLoop {
+            variable,
+            iterable,
+            body,
+        }
     }
-    
+
     pub fn new_function_declaration(
         name: String,
         parameters: Vec<String>,
@@ -117,7 +129,7 @@ impl ASTNode {
             body,
         }
     }
-    
+
     pub fn new_binary_op(left: Box<ASTNode>, operator: String, right: Box<ASTNode>) -> Self {
         ASTNode::BinaryOp {
             left,
@@ -125,32 +137,41 @@ impl ASTNode {
             right,
         }
     }
-    
+
     pub fn new_unary_op(operator: String, operand: Box<ASTNode>) -> Self {
         ASTNode::UnaryOp { operator, operand }
     }
-    
+
     pub fn new_function_call(name: String, arguments: Vec<Box<ASTNode>>) -> Self {
         ASTNode::FunctionCall { name, arguments }
     }
-    
+
     pub fn new_list_literal(elements: Vec<Box<ASTNode>>) -> Self {
         ASTNode::ListLiteral(elements)
     }
-    
+
     pub fn new_dictionary_literal(pairs: Vec<(String, Box<ASTNode>)>) -> Self {
         ASTNode::DictionaryLiteral(pairs)
     }
-    
+
     pub fn new_index_access(object: Box<ASTNode>, index: Box<ASTNode>) -> Self {
         ASTNode::IndexAccess { object, index }
     }
-    
+
     pub fn new_import(filename: String) -> Self {
         ASTNode::Import { filename }
     }
-    
-    pub fn new_index_assignment(object: Box<ASTNode>, index: Box<ASTNode>, value: Box<ASTNode>) -> Self {
-        ASTNode::IndexAssignment { object, index, value }
+
+    #[allow(dead_code)]
+    pub fn new_index_assignment(
+        object: Box<ASTNode>,
+        index: Box<ASTNode>,
+        value: Box<ASTNode>,
+    ) -> Self {
+        ASTNode::IndexAssignment {
+            object,
+            index,
+            value,
+        }
     }
 }

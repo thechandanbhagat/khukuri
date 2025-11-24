@@ -11,23 +11,23 @@ impl Environment {
             scopes: vec![HashMap::new()], // Global scope
         }
     }
-    
+
     pub fn push_scope(&mut self) {
         self.scopes.push(HashMap::new());
     }
-    
+
     pub fn pop_scope(&mut self) {
         if self.scopes.len() > 1 {
             self.scopes.pop();
         }
     }
-    
+
     pub fn define(&mut self, name: String, value: Value) {
         if let Some(scope) = self.scopes.last_mut() {
             scope.insert(name, value);
         }
     }
-    
+
     pub fn get(&self, name: &str) -> Option<Value> {
         // Search from innermost to outermost scope
         for scope in self.scopes.iter().rev() {
@@ -37,7 +37,7 @@ impl Environment {
         }
         None
     }
-    
+
     pub fn set(&mut self, name: &str, value: Value) -> Result<(), String> {
         // Search from innermost to outermost scope
         for scope in self.scopes.iter_mut().rev() {
@@ -48,7 +48,8 @@ impl Environment {
         }
         Err(format!("Undefined variable: {}", name))
     }
-    
+
+    #[allow(dead_code)]
     pub fn current_scope_size(&self) -> usize {
         self.scopes.len()
     }

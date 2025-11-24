@@ -13,31 +13,35 @@ pub struct Lexer {
 impl Lexer {
     pub fn new(code: String) -> Self {
         let chars: Vec<char> = code.chars().collect();
-        let current_char = if chars.is_empty() { None } else { Some(chars[0]) };
-        
+        let current_char = if chars.is_empty() {
+            None
+        } else {
+            Some(chars[0])
+        };
+
         let mut keywords = HashMap::new();
         // Nepali keywords
-        keywords.insert("maanau".to_string(), "maanau".to_string());      // Variable declaration
-        keywords.insert("yedi".to_string(), "yedi".to_string());          // If
-        keywords.insert("bhane".to_string(), "bhane".to_string());        // Then
-        keywords.insert("natra".to_string(), "natra".to_string());        // Else
-        keywords.insert("jaba".to_string(), "jaba".to_string());          // While (part 1)
-        keywords.insert("samma".to_string(), "samma".to_string());        // While (part 2)
-        keywords.insert("pratyek".to_string(), "pratyek".to_string());    // For each
-        keywords.insert("ma".to_string(), "ma".to_string());              // In (for foreach)
-        keywords.insert("kaam".to_string(), "kaam".to_string());          // Function
-        keywords.insert("pathau".to_string(), "pathau".to_string());      // Return
-        keywords.insert("bhan".to_string(), "bhan".to_string());          // Print
-        keywords.insert("sodha".to_string(), "sodha".to_string());        // Input
-        keywords.insert("rok".to_string(), "rok".to_string());            // Break
-        keywords.insert("jane".to_string(), "jane".to_string());          // Continue
-        keywords.insert("ra".to_string(), "ra".to_string());              // And
-        keywords.insert("wa".to_string(), "wa".to_string());              // Or
-        keywords.insert("hoina".to_string(), "hoina".to_string());        // Not
-        keywords.insert("sahi".to_string(), "sahi".to_string());          // True
-        keywords.insert("galat".to_string(), "galat".to_string());        // False
-        keywords.insert("aayaat".to_string(), "aayaat".to_string());      // Import
-        
+        keywords.insert("maanau".to_string(), "maanau".to_string()); // Variable declaration
+        keywords.insert("yedi".to_string(), "yedi".to_string()); // If
+        keywords.insert("bhane".to_string(), "bhane".to_string()); // Then
+        keywords.insert("natra".to_string(), "natra".to_string()); // Else
+        keywords.insert("jaba".to_string(), "jaba".to_string()); // While (part 1)
+        keywords.insert("samma".to_string(), "samma".to_string()); // While (part 2)
+        keywords.insert("pratyek".to_string(), "pratyek".to_string()); // For each
+        keywords.insert("ma".to_string(), "ma".to_string()); // In (for foreach)
+        keywords.insert("kaam".to_string(), "kaam".to_string()); // Function
+        keywords.insert("pathau".to_string(), "pathau".to_string()); // Return
+        keywords.insert("bhan".to_string(), "bhan".to_string()); // Print
+        keywords.insert("sodha".to_string(), "sodha".to_string()); // Input
+        keywords.insert("rok".to_string(), "rok".to_string()); // Break
+        keywords.insert("jane".to_string(), "jane".to_string()); // Continue
+        keywords.insert("ra".to_string(), "ra".to_string()); // And
+        keywords.insert("wa".to_string(), "wa".to_string()); // Or
+        keywords.insert("hoina".to_string(), "hoina".to_string()); // Not
+        keywords.insert("sahi".to_string(), "sahi".to_string()); // True
+        keywords.insert("galat".to_string(), "galat".to_string()); // False
+        keywords.insert("aayaat".to_string(), "aayaat".to_string()); // Import
+
         Lexer {
             code: chars,
             pos: 0,
@@ -47,7 +51,7 @@ impl Lexer {
             keywords,
         }
     }
-    
+
     fn advance(&mut self) {
         if let Some('\n') = self.current_char {
             self.line += 1;
@@ -55,7 +59,7 @@ impl Lexer {
         } else {
             self.column += 1;
         }
-        
+
         self.pos += 1;
         if self.pos >= self.code.len() {
             self.current_char = None;
@@ -63,7 +67,7 @@ impl Lexer {
             self.current_char = Some(self.code[self.pos]);
         }
     }
-    
+
     fn peek(&self) -> Option<char> {
         let peek_pos = self.pos + 1;
         if peek_pos >= self.code.len() {
@@ -72,7 +76,7 @@ impl Lexer {
             Some(self.code[peek_pos])
         }
     }
-    
+
     fn skip_whitespace(&mut self) {
         while let Some(ch) = self.current_char {
             if ch.is_whitespace() && ch != '\n' {
@@ -82,7 +86,7 @@ impl Lexer {
             }
         }
     }
-    
+
     fn skip_comment(&mut self) {
         // Skip single-line comments starting with //
         if self.current_char == Some('/') && self.peek() == Some('/') {
@@ -94,11 +98,11 @@ impl Lexer {
             }
         }
     }
-    
+
     fn read_number(&mut self) -> String {
         let mut number = String::new();
         let mut has_dot = false;
-        
+
         while let Some(ch) = self.current_char {
             if ch.is_ascii_digit() {
                 number.push(ch);
@@ -111,13 +115,13 @@ impl Lexer {
                 break;
             }
         }
-        
+
         number
     }
-    
+
     fn read_identifier(&mut self) -> String {
         let mut identifier = String::new();
-        
+
         while let Some(ch) = self.current_char {
             if ch.is_alphanumeric() || ch == '_' {
                 identifier.push(ch);
@@ -126,14 +130,14 @@ impl Lexer {
                 break;
             }
         }
-        
+
         identifier
     }
-    
+
     fn read_string(&mut self) -> Result<String, String> {
         let mut string = String::new();
         self.advance(); // Skip opening quote
-        
+
         while let Some(ch) = self.current_char {
             if ch == '"' {
                 self.advance(); // Skip closing quote
@@ -158,13 +162,13 @@ impl Lexer {
                 self.advance();
             }
         }
-        
+
         Err("Unterminated string literal".to_string())
     }
-    
+
     fn read_operator(&mut self) -> String {
         let mut operator = String::new();
-        
+
         match self.current_char {
             Some('=') => {
                 operator.push('=');
@@ -204,10 +208,10 @@ impl Lexer {
             }
             _ => {}
         }
-        
+
         operator
     }
-    
+
     pub fn tokenize(&mut self) -> Result<Vec<Token>, String> {
         let mut tokens = Vec::new();
 
@@ -268,12 +272,7 @@ impl Lexer {
                         TokenType::Identifier
                     };
 
-                    tokens.push(Token::new(
-                        token_type,
-                        identifier,
-                        token_line,
-                        token_column,
-                    ));
+                    tokens.push(Token::new(token_type, identifier, token_line, token_column));
                 }
 
                 // Handle operators
@@ -671,9 +670,8 @@ mod tests {
     #[test]
     fn test_all_nepali_keywords() {
         let keywords = vec![
-            "maanau", "yedi", "bhane", "natra", "jaba", "samma",
-            "pratyek", "ma", "kaam", "pathau", "bhan", "sodha",
-            "rok", "jane", "ra", "wa", "hoina", "sahi", "galat", "aayaat"
+            "maanau", "yedi", "bhane", "natra", "jaba", "samma", "pratyek", "ma", "kaam", "pathau",
+            "bhan", "sodha", "rok", "jane", "ra", "wa", "hoina", "sahi", "galat", "aayaat",
         ];
 
         for keyword in keywords {
@@ -816,7 +814,10 @@ mod tests {
     fn test_multiple_newlines() {
         let mut lexer = Lexer::new("maanau\n\n\nx".to_string());
         let tokens = lexer.tokenize().unwrap();
-        let newline_count = tokens.iter().filter(|t| t.token_type == TokenType::Newline).count();
+        let newline_count = tokens
+            .iter()
+            .filter(|t| t.token_type == TokenType::Newline)
+            .count();
         assert_eq!(newline_count, 3);
     }
 }

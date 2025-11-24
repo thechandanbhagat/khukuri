@@ -27,7 +27,8 @@ impl Value {
                 format!("[{}]", items.join(", "))
             }
             Value::Dictionary(dict) => {
-                let items: Vec<String> = dict.iter()
+                let items: Vec<String> = dict
+                    .iter()
                     .map(|(k, v)| format!("\"{}\": {}", k, v.to_string()))
                     .collect();
                 format!("{{{}}}", items.join(", "))
@@ -35,7 +36,7 @@ impl Value {
             Value::Null => "null".to_string(),
         }
     }
-    
+
     pub fn is_truthy(&self) -> bool {
         match self {
             Value::Boolean(b) => *b,
@@ -46,7 +47,7 @@ impl Value {
             Value::Dictionary(dict) => !dict.is_empty(),
         }
     }
-    
+
     pub fn get_type(&self) -> &'static str {
         match self {
             Value::Number(_) => "Number",
