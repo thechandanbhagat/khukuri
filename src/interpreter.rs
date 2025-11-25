@@ -1,8 +1,8 @@
 use crate::ast::ASTNode;
 use crate::environment::Environment;
-use crate::value::Value;
 use crate::lexer::Lexer;
 use crate::parser::Parser;
+use crate::value::Value;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -31,7 +31,7 @@ impl Interpreter {
             importing_stack: Vec::new(),
         }
     }
-    
+
     pub fn interpret(&mut self, node: &ASTNode) -> Result<Value, String> {
         match self.interpret_with_control(node)? {
             ControlFlow::Return(value) => Ok(value),
@@ -40,7 +40,7 @@ impl Interpreter {
             ControlFlow::Continue => Err("Continue statement outside loop".to_string()),
         }
     }
-    
+
     fn interpret_with_control(&mut self, node: &ASTNode) -> Result<ControlFlow, String> {
         match node {
             ASTNode::Program(statements) => {
@@ -52,23 +52,27 @@ impl Interpreter {
                 }
                 Ok(ControlFlow::None)
             }
-            
+
             ASTNode::VarDeclaration { name, value, .. } => {
                 let val = self.evaluate_expression(value)?;
                 self.environment.define(name.clone(), val);
                 Ok(ControlFlow::None)
             }
-            
+
             ASTNode::Assignment { name, value } => {
                 let val = self.evaluate_expression(value)?;
                 self.environment.set(name, val)?;
                 Ok(ControlFlow::None)
             }
-            
-            ASTNode::IndexAssignment { object, index, value } => {
+
+            ASTNode::IndexAssignment {
+                object,
+                index,
+                value,
+            } => {
                 let index_val = self.evaluate_expression(index)?;
                 let new_value = self.evaluate_expression(value)?;
-                
+
                 // Get the object to modify
                 if let ASTNode::Identifier(name) = object.as_ref() {
                     if let Some(mut obj) = self.environment.get(name) {
@@ -94,54 +98,58 @@ impl Interpreter {
                 } else {
                     return Err("Invalid left-hand side in index assignment".to_string());
                 }
-                
+
                 Ok(ControlFlow::None)
             }
-            
-            ASTNode::IfStatement { condition, then_block, else_block } => {
+
+            ASTNode::IfStatement {
+                condition,
+                then_block,
+                else_block,
+            } => {
                 let cond_value = self.evaluate_expression(condition)?;
-                
+
                 if cond_value.is_truthy() {
                     self.environment.push_scope();
                     let mut result = ControlFlow::None;
-                    
+
                     for stmt in then_block {
                         result = self.interpret_with_control(stmt)?;
                         if !matches!(result, ControlFlow::None) {
                             break;
                         }
                     }
-                    
+
                     self.environment.pop_scope();
                     Ok(result)
                 } else if let Some(else_stmts) = else_block {
                     self.environment.push_scope();
                     let mut result = ControlFlow::None;
-                    
+
                     for stmt in else_stmts {
                         result = self.interpret_with_control(stmt)?;
                         if !matches!(result, ControlFlow::None) {
                             break;
                         }
                     }
-                    
+
                     self.environment.pop_scope();
                     Ok(result)
                 } else {
                     Ok(ControlFlow::None)
                 }
             }
-            
+
             ASTNode::WhileLoop { condition, body } => {
                 loop {
                     let cond_value = self.evaluate_expression(condition)?;
                     if !cond_value.is_truthy() {
                         break;
                     }
-                    
+
                     self.environment.push_scope();
                     let mut should_break = false;
-                    
+
                     for stmt in body {
                         match self.interpret_with_control(stmt)? {
                             ControlFlow::None => continue,
@@ -156,25 +164,29 @@ impl Interpreter {
                             }
                         }
                     }
-                    
+
                     self.environment.pop_scope();
-                    
+
                     if should_break {
                         break;
                     }
                 }
                 Ok(ControlFlow::None)
             }
-            
-            ASTNode::ForEachLoop { variable, iterable, body } => {
+
+            ASTNode::ForEachLoop {
+                variable,
+                iterable,
+                body,
+            } => {
                 let iterable_value = self.evaluate_expression(iterable)?;
-                
+
                 match iterable_value {
                     Value::List(list) => {
                         for item in list {
                             self.environment.push_scope();
                             self.environment.define(variable.clone(), item);
-                            
+
                             let mut should_break = false;
                             for stmt in body {
                                 match self.interpret_with_control(stmt)? {
@@ -190,9 +202,9 @@ impl Interpreter {
                                     }
                                 }
                             }
-                            
+
                             self.environment.pop_scope();
-                            
+
                             if should_break {
                                 break;
                             }
@@ -202,8 +214,9 @@ impl Interpreter {
                         for (key, _value) in dict {
                             self.environment.push_scope();
                             // For dictionaries, iterate over keys
-                            self.environment.define(variable.clone(), Value::String(key));
-                            
+                            self.environment
+                                .define(variable.clone(), Value::String(key));
+
                             let mut should_break = false;
                             for stmt in body {
                                 match self.interpret_with_control(stmt)? {
@@ -219,9 +232,9 @@ impl Interpreter {
                                     }
                                 }
                             }
-                            
+
                             self.environment.pop_scope();
-                            
+
                             if should_break {
                                 break;
                             }
@@ -230,8 +243,9 @@ impl Interpreter {
                     Value::String(s) => {
                         for ch in s.chars() {
                             self.environment.push_scope();
-                            self.environment.define(variable.clone(), Value::String(ch.to_string()));
-                            
+                            self.environment
+                                .define(variable.clone(), Value::String(ch.to_string()));
+
                             let mut should_break = false;
                             for stmt in body {
                                 match self.interpret_with_control(stmt)? {
@@ -247,9 +261,9 @@ impl Interpreter {
                                     }
                                 }
                             }
-                            
+
                             self.environment.pop_scope();
-                            
+
                             if should_break {
                                 break;
                             }
@@ -257,38 +271,40 @@ impl Interpreter {
                     }
                     _ => return Err(format!("Cannot iterate over {}", iterable_value.get_type())),
                 }
-                
+
                 Ok(ControlFlow::None)
             }
-            
-            ASTNode::FunctionDeclaration { name, parameters, body } => {
-                self.functions.insert(
-                    name.clone(),
-                    (parameters.clone(), body.clone())
-                );
+
+            ASTNode::FunctionDeclaration {
+                name,
+                parameters,
+                body,
+            } => {
+                self.functions
+                    .insert(name.clone(), (parameters.clone(), body.clone()));
                 Ok(ControlFlow::None)
             }
-            
+
             ASTNode::Return(expr) => {
                 let value = self.evaluate_expression(expr)?;
                 Ok(ControlFlow::Return(value))
             }
-            
+
             ASTNode::Print(expr) => {
                 let value = self.evaluate_expression(expr)?;
                 println!("{}", value.to_string());
                 Ok(ControlFlow::None)
             }
-            
+
             ASTNode::Import { filename } => {
                 self.execute_import(filename)?;
                 Ok(ControlFlow::None)
             }
-            
+
             ASTNode::Break => Ok(ControlFlow::Break),
-            
+
             ASTNode::Continue => Ok(ControlFlow::Continue),
-            
+
             // Expression statements
             _ => {
                 self.evaluate_expression(node)?;
@@ -296,21 +312,19 @@ impl Interpreter {
             }
         }
     }
-    
+
     fn evaluate_expression(&mut self, node: &ASTNode) -> Result<Value, String> {
         match node {
-            ASTNode::BinaryOp { left, operator, right } => {
-                self.eval_binary_op(left, operator, right)
-            }
-            
-            ASTNode::UnaryOp { operator, operand } => {
-                self.eval_unary_op(operator, operand)
-            }
-            
-            ASTNode::FunctionCall { name, arguments } => {
-                self.call_function(name, arguments)
-            }
-            
+            ASTNode::BinaryOp {
+                left,
+                operator,
+                right,
+            } => self.eval_binary_op(left, operator, right),
+
+            ASTNode::UnaryOp { operator, operand } => self.eval_unary_op(operator, operand),
+
+            ASTNode::FunctionCall { name, arguments } => self.call_function(name, arguments),
+
             ASTNode::ListLiteral(elements) => {
                 let mut list = Vec::new();
                 for element in elements {
@@ -319,7 +333,7 @@ impl Interpreter {
                 }
                 Ok(Value::List(list))
             }
-            
+
             ASTNode::DictionaryLiteral(pairs) => {
                 let mut dict = HashMap::new();
                 for (key, value_expr) in pairs {
@@ -328,11 +342,11 @@ impl Interpreter {
                 }
                 Ok(Value::Dictionary(dict))
             }
-            
+
             ASTNode::IndexAccess { object, index } => {
                 let obj_val = self.evaluate_expression(object)?;
                 let index_val = self.evaluate_expression(index)?;
-                
+
                 match (&obj_val, &index_val) {
                     (Value::List(list), Value::Number(n)) => {
                         let idx = *n as usize;
@@ -342,11 +356,10 @@ impl Interpreter {
                             Err(format!("List index {} out of bounds", idx))
                         }
                     }
-                    (Value::Dictionary(dict), Value::String(key)) => {
-                        dict.get(key)
-                            .cloned()
-                            .ok_or_else(|| format!("Key '{}' not found in dictionary", key))
-                    }
+                    (Value::Dictionary(dict), Value::String(key)) => dict
+                        .get(key)
+                        .cloned()
+                        .ok_or_else(|| format!("Key '{}' not found in dictionary", key)),
                     (Value::String(s), Value::Number(n)) => {
                         let idx = *n as usize;
                         if idx < s.len() {
@@ -356,35 +369,41 @@ impl Interpreter {
                             Err(format!("String index {} out of bounds", idx))
                         }
                     }
-                    _ => Err(format!("Cannot index {} with {}", 
-                                   obj_val.get_type(), index_val.get_type()))
+                    _ => Err(format!(
+                        "Cannot index {} with {}",
+                        obj_val.get_type(),
+                        index_val.get_type()
+                    )),
                 }
             }
-            
-            ASTNode::Identifier(name) => {
-                self.environment.get(name)
-                    .ok_or_else(|| format!("Undefined variable: {}", name))
-            }
-            
-            ASTNode::Number(val) => {
-                val.parse::<f64>()
-                    .map(Value::Number)
-                    .map_err(|_| format!("Invalid number: {}", val))
-            }
-            
+
+            ASTNode::Identifier(name) => self
+                .environment
+                .get(name)
+                .ok_or_else(|| format!("Undefined variable: {}", name)),
+
+            ASTNode::Number(val) => val
+                .parse::<f64>()
+                .map(Value::Number)
+                .map_err(|_| format!("Invalid number: {}", val)),
+
             ASTNode::String(val) => Ok(Value::String(val.clone())),
-            
+
             ASTNode::Boolean(val) => Ok(Value::Boolean(*val)),
-            
+
             _ => Err("Invalid expression".to_string()),
         }
     }
-    
-    fn eval_binary_op(&mut self, left: &ASTNode, operator: &str, right: &ASTNode) 
-        -> Result<Value, String> {
+
+    fn eval_binary_op(
+        &mut self,
+        left: &ASTNode,
+        operator: &str,
+        right: &ASTNode,
+    ) -> Result<Value, String> {
         let left_val = self.evaluate_expression(left)?;
         let right_val = self.evaluate_expression(right)?;
-        
+
         match (&left_val, operator, &right_val) {
             (Value::Number(l), "+", Value::Number(r)) => Ok(Value::Number(l + r)),
             (Value::Number(l), "-", Value::Number(r)) => Ok(Value::Number(l - r)),
@@ -409,35 +428,34 @@ impl Interpreter {
             (Value::Number(l), "<=", Value::Number(r)) => Ok(Value::Boolean(l <= r)),
             (Value::Number(l), "==", Value::Number(r)) => Ok(Value::Boolean(l == r)),
             (Value::Number(l), "!=", Value::Number(r)) => Ok(Value::Boolean(l != r)),
-            
+
             (Value::String(l), "+", Value::String(r)) => Ok(Value::String(format!("{}{}", l, r))),
             (Value::String(l), "==", Value::String(r)) => Ok(Value::Boolean(l == r)),
             (Value::String(l), "!=", Value::String(r)) => Ok(Value::Boolean(l != r)),
-            
+
             (Value::Boolean(l), "==", Value::Boolean(r)) => Ok(Value::Boolean(l == r)),
             (Value::Boolean(l), "!=", Value::Boolean(r)) => Ok(Value::Boolean(l != r)),
-            
+
             // Logical operators (ra = and, wa = or)
             (l, "ra", r) => Ok(Value::Boolean(l.is_truthy() && r.is_truthy())),
             (l, "wa", r) => Ok(Value::Boolean(l.is_truthy() || r.is_truthy())),
-            
+
             // String and number concatenation
-            (Value::String(l), "+", Value::Number(r)) => {
-                Ok(Value::String(format!("{}{}", l, r)))
-            }
-            (Value::Number(l), "+", Value::String(r)) => {
-                Ok(Value::String(format!("{}{}", l, r)))
-            }
-            
-            _ => Err(format!("Invalid operation: {} {} {}", 
-                           left_val.to_string(), operator, right_val.to_string()))
+            (Value::String(l), "+", Value::Number(r)) => Ok(Value::String(format!("{}{}", l, r))),
+            (Value::Number(l), "+", Value::String(r)) => Ok(Value::String(format!("{}{}", l, r))),
+
+            _ => Err(format!(
+                "Invalid operation: {} {} {}",
+                left_val.to_string(),
+                operator,
+                right_val.to_string()
+            )),
         }
     }
-    
-    fn eval_unary_op(&mut self, operator: &str, operand: &ASTNode) 
-        -> Result<Value, String> {
+
+    fn eval_unary_op(&mut self, operator: &str, operand: &ASTNode) -> Result<Value, String> {
         let val = self.evaluate_expression(operand)?;
-        
+
         match operator {
             "hoina" => Ok(Value::Boolean(!val.is_truthy())),
             "-" => {
@@ -447,42 +465,45 @@ impl Interpreter {
                     Err("Cannot negate non-number".to_string())
                 }
             }
-            _ => Err(format!("Unknown unary operator: {}", operator))
+            _ => Err(format!("Unknown unary operator: {}", operator)),
         }
     }
-    
-    fn call_function(&mut self, name: &str, arguments: &[Box<ASTNode>]) 
-        -> Result<Value, String> {
+
+    fn call_function(&mut self, name: &str, arguments: &[Box<ASTNode>]) -> Result<Value, String> {
         // Get function definition
-        let (params, body) = self.functions.get(name)
+        let (params, body) = self
+            .functions
+            .get(name)
             .ok_or_else(|| format!("Undefined function: {}", name))?
             .clone();
-        
+
         // Check argument count
         if arguments.len() != params.len() {
             return Err(format!(
                 "Function {} expects {} arguments, got {}",
-                name, params.len(), arguments.len()
+                name,
+                params.len(),
+                arguments.len()
             ));
         }
-        
+
         // Evaluate arguments
         let mut arg_values = Vec::new();
         for arg in arguments {
             arg_values.push(self.evaluate_expression(arg)?);
         }
-        
+
         // Create new scope for function
         self.environment.push_scope();
-        
+
         // Bind parameters
         for (param, value) in params.iter().zip(arg_values.iter()) {
             self.environment.define(param.clone(), value.clone());
         }
-        
+
         // Execute function body
         let mut result = Value::Null;
-        
+
         for stmt in &body {
             match self.interpret_with_control(stmt)? {
                 ControlFlow::Return(value) => {
@@ -494,50 +515,53 @@ impl Interpreter {
                 ControlFlow::Continue => return Err("Continue statement outside loop".to_string()),
             }
         }
-        
+
         // Restore scope
         self.environment.pop_scope();
-        
+
         Ok(result)
     }
-    
+
     fn execute_import(&mut self, filename: &str) -> Result<(), String> {
         // Check if already imported - if so, skip
         if self.imported_modules.contains_key(filename) {
             return Ok(()); // Already imported, skip
         }
-        
+
         // Check for circular imports in current import chain
         if self.importing_stack.contains(&filename.to_string()) {
             return Err(format!("Circular import bhettayo bro: {}", filename));
         }
-        
+
         // Add to import stack
         self.importing_stack.push(filename.to_string());
-        
+
         // Read the file
         let file_path = Path::new(filename);
         let source_code = fs::read_to_string(file_path)
             .map_err(|e| format!("Import error: File '{}' padhna sakiyena: {}", filename, e))?;
-        
+
         // Lexical analysis
         let mut lexer = Lexer::new(source_code);
-        let tokens = lexer.tokenize()
+        let tokens = lexer
+            .tokenize()
             .map_err(|e| format!("Import error '{}' ma: {}", filename, e))?;
-        
-        // Syntax analysis  
+
+        // Syntax analysis
         let mut parser = Parser::new(tokens);
-        let ast = parser.parse()
+        let ast = parser
+            .parse()
             .map_err(|e| format!("Import error '{}' ma: {}", filename, e))?;
-        
+
         // Execute the imported module in current environment
-        let result = self.interpret_with_control(&ast)
+        let result = self
+            .interpret_with_control(&ast)
             .map_err(|e| format!("Runtime error imported file '{}' ma: {}", filename, e));
-        
+
         // Remove from import stack and mark as imported
         self.importing_stack.pop();
         self.imported_modules.insert(filename.to_string(), true);
-        
+
         result?;
         Ok(())
     }
@@ -757,10 +781,7 @@ mod tests {
     #[test]
     fn test_unary_not() {
         let mut interp = Interpreter::new();
-        let ast = ASTNode::new_unary_op(
-            "hoina".to_string(),
-            Box::new(ASTNode::Boolean(true)),
-        );
+        let ast = ASTNode::new_unary_op("hoina".to_string(), Box::new(ASTNode::Boolean(true)));
         let result = interp.interpret(&ast).unwrap();
         assert_eq!(result, Value::Boolean(false));
     }
@@ -768,10 +789,8 @@ mod tests {
     #[test]
     fn test_unary_minus() {
         let mut interp = Interpreter::new();
-        let ast = ASTNode::new_unary_op(
-            "-".to_string(),
-            Box::new(ASTNode::Number("5".to_string())),
-        );
+        let ast =
+            ASTNode::new_unary_op("-".to_string(), Box::new(ASTNode::Number("5".to_string())));
         let result = interp.interpret(&ast).unwrap();
         assert_eq!(result, Value::Number(-5.0));
     }
@@ -867,9 +886,9 @@ mod tests {
             Box::new(ASTNode::new_var_declaration(
                 "list".to_string(),
                 None,
-                Box::new(ASTNode::new_list_literal(vec![
-                    Box::new(ASTNode::Number("10".to_string())),
-                ])),
+                Box::new(ASTNode::new_list_literal(vec![Box::new(ASTNode::Number(
+                    "10".to_string(),
+                ))])),
             )),
             Box::new(ASTNode::new_index_access(
                 Box::new(ASTNode::Identifier("list".to_string())),
@@ -884,9 +903,10 @@ mod tests {
     #[test]
     fn test_dictionary_literal() {
         let mut interp = Interpreter::new();
-        let ast = ASTNode::new_dictionary_literal(vec![
-            ("key".to_string(), Box::new(ASTNode::Number("42".to_string()))),
-        ]);
+        let ast = ASTNode::new_dictionary_literal(vec![(
+            "key".to_string(),
+            Box::new(ASTNode::Number("42".to_string())),
+        )]);
         let result = interp.interpret(&ast).unwrap();
         match result {
             Value::Dictionary(dict) => {
@@ -904,9 +924,10 @@ mod tests {
             Box::new(ASTNode::new_var_declaration(
                 "dict".to_string(),
                 None,
-                Box::new(ASTNode::new_dictionary_literal(vec![
-                    ("key".to_string(), Box::new(ASTNode::Number("42".to_string()))),
-                ])),
+                Box::new(ASTNode::new_dictionary_literal(vec![(
+                    "key".to_string(),
+                    Box::new(ASTNode::Number("42".to_string())),
+                )])),
             )),
             Box::new(ASTNode::new_index_access(
                 Box::new(ASTNode::Identifier("dict".to_string())),
@@ -933,7 +954,9 @@ mod tests {
         let ast = ASTNode::Continue;
         let result = interp.interpret(&ast);
         assert!(result.is_err());
-        assert!(result.unwrap_err().contains("Continue statement outside loop"));
+        assert!(result
+            .unwrap_err()
+            .contains("Continue statement outside loop"));
     }
 
     #[test]
@@ -1026,7 +1049,9 @@ mod tests {
             Box::new(ASTNode::new_function_declaration(
                 "add".to_string(),
                 vec!["a".to_string(), "b".to_string()],
-                vec![Box::new(ASTNode::Return(Box::new(ASTNode::Number("0".to_string()))))],
+                vec![Box::new(ASTNode::Return(Box::new(ASTNode::Number(
+                    "0".to_string(),
+                ))))],
             )),
             Box::new(ASTNode::new_function_call(
                 "add".to_string(),

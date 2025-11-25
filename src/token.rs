@@ -1,29 +1,29 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum TokenType {
     // Keywords
-    Keyword,           // maanau, yedi, bhane, natra, etc.
-    
+    Keyword, // maanau, yedi, bhane, natra, etc.
+
     // Identifiers and Literals
-    Identifier,        // variable names
-    Number,           // 123, 45.67
-    String,           // "text"
-    
+    Identifier, // variable names
+    Number,     // 123, 45.67
+    String,     // "text"
+
     // Operators
-    Operator,         // =, +, -, *, /, %, ==, !=, >, <, >=, <=
-    
+    Operator, // =, +, -, *, /, %, ==, !=, >, <, >=, <=
+
     // Delimiters
-    LBrace,           // {
-    RBrace,           // }
-    LParen,           // (
-    RParen,           // )
-    LBracket,         // [
-    RBracket,         // ]
-    Comma,            // ,
-    Colon,            // : (for optional type hints)
-    
+    LBrace,   // {
+    RBrace,   // }
+    LParen,   // (
+    RParen,   // )
+    LBracket, // [
+    RBracket, // ]
+    Comma,    // ,
+    Colon,    // : (for optional type hints)
+
     // Special
-    Newline,          // \n
-    EOF,              // End of file
+    Newline, // \n
+    EOF,     // End of file
 }
 
 #[derive(Debug, Clone, PartialEq)]
